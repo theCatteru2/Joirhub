@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JopJoir - HoYoLAB Portal</title>
+  <title>JopJoir - HoYoLAB Portal & Community</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,9 +26,6 @@
       --text-muted: #64748b;
       --gold: #f59e0b;
       --pink: #ec4899;
-      --purple: #8b5cf6;
-      --blue: #3b82f6;
-      --green: #10b981;
       --radius: 16px;
     }
 
@@ -42,7 +42,7 @@
       min-height: 100vh;
     }
 
-    /* BARRA SUPERIOR HOYOLAB */
+    /* HEADER */
     .hoyobar {
       background: #ffffff;
       border-bottom: 1px solid var(--card-border);
@@ -72,7 +72,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* PANTALLA LOGIN */
+    /* AUTH */
     #auth-view {
       display: flex;
       justify-content: center;
@@ -109,7 +109,7 @@
       font-weight: 700;
       color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: 0.2s;
     }
 
     .auth-tabs button.active {
@@ -132,7 +132,7 @@
       display: block;
     }
 
-    .input-box input {
+    .input-box input, .input-box textarea {
       width: 100%;
       padding: 12px 14px;
       border: 1.5px solid var(--card-border);
@@ -142,7 +142,7 @@
       transition: 0.2s;
     }
 
-    .input-box input:focus {
+    .input-box input:focus, .input-box textarea:focus {
       border-color: var(--primary);
     }
 
@@ -163,21 +163,21 @@
       transform: translateY(-2px);
     }
 
-    /* DASHBOARD PRINCIPAL */
+    /* DASHBOARD */
     #dashboard-view {
       display: none;
       max-width: 1100px;
       margin: 24px auto;
-      padding: 0 20px;
+      padding: 0 20px 60px;
       flex-direction: column;
       gap: 24px;
     }
 
-    /* HERO PROFILE CARD */
+    /* HERO PERFIL */
     .profile-hero {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
       border-radius: 24px;
-      padding: 30px;
+      padding: 28px;
       color: white;
       display: flex;
       justify-content: space-between;
@@ -195,11 +195,26 @@
 
     .avatar-wrapper {
       position: relative;
+      cursor: pointer;
+    }
+
+    .avatar-wrapper:hover::after {
+      content: '📷 Cambiar';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
     }
 
     .hoyo-avatar {
-      width: 80px;
-      height: 80px;
+      width: 84px;
+      height: 84px;
       border-radius: 50%;
       background: #ffffff;
       color: #6366f1;
@@ -208,8 +223,15 @@
       justify-content: center;
       font-size: 2.2rem;
       font-weight: 800;
-      border: 4px solid rgba(255, 255, 255, 0.4);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      border: 4px solid rgba(255, 255, 255, 0.5);
+      object-fit: cover;
+      overflow: hidden;
+    }
+
+    .hoyo-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .level-badge {
@@ -231,25 +253,26 @@
       margin-bottom: 4px;
     }
 
-    .profile-meta .uid-tag {
+    .uid-tag {
       background: rgba(255, 255, 255, 0.2);
       padding: 4px 10px;
       border-radius: 8px;
       font-size: 0.8rem;
       font-weight: 600;
       backdrop-filter: blur(8px);
+      cursor: pointer;
     }
 
     .profile-wallet {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .wallet-pill {
       background: rgba(255, 255, 255, 0.18);
       backdrop-filter: blur(12px);
-      padding: 10px 18px;
+      padding: 10px 16px;
       border-radius: 14px;
       display: flex;
       align-items: center;
@@ -265,9 +288,10 @@
     /* PESTAÑAS HOYOLAB */
     .hoyo-nav {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       border-bottom: 2px solid #e2e8f0;
       padding-bottom: 8px;
+      overflow-x: auto;
     }
 
     .hoyo-nav-item {
@@ -277,6 +301,8 @@
       cursor: pointer;
       border-radius: 10px;
       transition: 0.2s;
+      white-space: nowrap;
+      position: relative;
     }
 
     .hoyo-nav-item.active {
@@ -284,57 +310,93 @@
       background: var(--primary-light);
     }
 
-    /* CONTENIDOS DE PESTAÑAS */
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
+    .nav-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.65rem;
+      padding: 2px 5px;
+      border-radius: 10px;
+      font-weight: 800;
     }
 
-    /* CHECK-IN CARD */
-    .checkin-card {
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* TARJETAS COMUNES */
+    .card-block {
       background: white;
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 24px;
+      padding: 22px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+
+    /* MODAL DE CROPPER */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      max-width: 480px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+    }
+
+    .crop-container {
+      width: 100%;
+      height: 280px;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+
+    /* BANDEJA Y AMIGOS */
+    .inbox-item, .friend-card {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: #fafafa;
+      margin-bottom: 10px;
+    }
+
+    .user-avatar-mini {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .user-avatar-mini img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     /* LOGROS HOYOLAB */
-    .achievements-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-
-    .filter-pills {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .filter-btn {
-      border: 1px solid var(--card-border);
-      background: white;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      color: var(--text-muted);
-    }
-
-    .filter-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-
     .ach-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -348,7 +410,6 @@
       padding: 16px;
       display: flex;
       gap: 14px;
-      transition: all 0.2s;
     }
 
     .ach-item.unlocked {
@@ -356,9 +417,7 @@
       background: linear-gradient(180deg, #ffffff 0%, #fffdf5 100%);
     }
 
-    .ach-item.locked {
-      opacity: 0.65;
-    }
+    .ach-item.locked { opacity: 0.65; }
 
     .ach-icon-box {
       width: 48px;
@@ -371,76 +430,47 @@
       font-size: 1.4rem;
       flex-shrink: 0;
     }
+    .ach-item.unlocked .ach-icon-box { background: #fef3c7; }
 
-    .ach-item.unlocked .ach-icon-box {
-      background: #fef3c7;
-    }
-
-    .ach-body {
-      flex: 1;
-    }
-
-    .ach-title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-
-    .ach-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    .badge-rarity {
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 2px 8px;
-      border-radius: 6px;
-      text-transform: uppercase;
-    }
-
+    .ach-body { flex: 1; }
+    .ach-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .badge-rarity { font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; }
     .badge-comun { background: #e2e8f0; color: #475569; }
     .badge-raro { background: #dbeafe; color: #1d4ed8; }
     .badge-muy_raro { background: #f3e8ff; color: #7e22ce; }
     .badge-inaudito { background: #fef08a; color: #a16207; }
+    .ach-progress-bar { height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+    .ach-progress-fill { height: 100%; background: #10b981; }
 
-    .ach-desc {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-bottom: 8px;
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      border-radius: 8px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
     }
-
-    .ach-progress-bar {
-      height: 6px;
-      background: #e2e8f0;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .ach-progress-fill {
-      height: 100%;
-      background: #10b981;
-    }
+    .btn-sm-primary { background: var(--primary); color: white; }
+    .btn-sm-danger { background: #fee2e2; color: #ef4444; }
+    .btn-sm-success { background: #dcfce7; color: #15803d; }
   </style>
 </head>
 <body>
 
   <header class="hoyobar">
     <div class="hoyobar-inner">
-      <div class="brand">
-        <span>🎮</span> JopJoir Portal
-      </div>
+      <div class="brand"><span>🌟</span> JopJoir Hub</div>
       <div id="nav-user-actions" style="display:none;">
-        <button class="filter-btn" style="color:#ef4444; border-color:#fca5a5;" onclick="logout()">Cerrar Sesión</button>
+        <button class="btn-sm btn-sm-danger" onclick="logout()">Cerrar Sesión</button>
       </div>
     </div>
   </header>
 
   <div id="auth-view">
     <div class="auth-box">
-      <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:6px;">Bienvenido a JopJoir</h2>
-      <p style="color:var(--text-muted); font-size:0.9rem;">Consulta tu registro de batalla y sincroniza tus recompensas</p>
+      <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:6px;">JopJoir Community</h2>
+      <p style="color:var(--text-muted); font-size:0.9rem;">Accede a tu cuenta de juego para sincronizar amigos y correos</p>
 
       <div class="auth-tabs">
         <button id="tab-login" class="active" onclick="switchTab('login')">Ingresar</button>
@@ -454,7 +484,7 @@
         </div>
 
         <div class="input-box" id="group-email" style="display:none;">
-          <label>Correo Electrónico</label>
+          <label>Correo Electrónico (Opcional)</label>
           <input type="email" id="auth-email" placeholder="correo@ejemplo.com">
         </div>
 
@@ -465,7 +495,6 @@
 
         <button type="submit" class="btn-hoyo" id="btn-submit">Iniciar Sesión</button>
       </form>
-
       <div id="auth-msg" style="margin-top:14px; font-size:0.85rem; font-weight:700; min-height:20px;"></div>
     </div>
   </div>
@@ -474,13 +503,15 @@
     
     <div class="profile-hero">
       <div class="profile-info">
-        <div class="avatar-wrapper">
+        <div class="avatar-wrapper" onclick="abrirSelectorAvatar()" title="Haz clic para recortar foto">
           <div class="hoyo-avatar" id="disp-avatar">J</div>
           <div class="level-badge" id="disp-level">Lv. 1</div>
         </div>
+        <input type="file" id="file-avatar-input" accept="image/*" style="display:none;" onchange="imagenSeleccionada(event)">
+
         <div class="profile-meta">
           <h2 id="disp-username">Joircito</h2>
-          <span class="uid-tag" id="disp-uid">UID: usr_000000</span>
+          <span class="uid-tag" id="disp-uid" onclick="copiarUID()" title="Copiar UID">UID: usr_000000 📋</span>
         </div>
       </div>
 
@@ -492,7 +523,6 @@
             <div class="val" id="cnt-enjoirs">0</div>
           </div>
         </div>
-
         <div class="wallet-pill">
           <span>🍀</span>
           <div>
@@ -500,7 +530,6 @@
             <div class="val" id="cnt-dulucks">0</div>
           </div>
         </div>
-
         <div class="wallet-pill">
           <span>🎟️</span>
           <div>
@@ -512,66 +541,121 @@
     </div>
 
     <nav class="hoyo-nav">
-      <div class="hoyo-nav-item active" onclick="switchDashboardTab('logros')">🏅 Salón de Logros</div>
-      <div class="hoyo-nav-item" onclick="switchDashboardTab('checkin')">📅 Check-in Diario</div>
-      <div class="hoyo-nav-item" onclick="switchDashboardTab('pase')">🎟️ Pase de Temporada</div>
+      <div class="hoyo-nav-item active" onclick="switchDashboardTab('logros', this)">🏅 Logros</div>
+      <div class="hoyo-nav-item" onclick="switchDashboardTab('amigos', this)">👥 Amigos</div>
+      <div class="hoyo-nav-item" onclick="switchDashboardTab('buzon', this)">
+        📬 Bandeja de Entrada <span id="badge-inbox" class="nav-badge" style="display:none;">0</span>
+      </div>
+      <div class="hoyo-nav-item" onclick="switchDashboardTab('checkin', this)">📅 Check-in</div>
     </nav>
 
     <div id="tab-logros-view" class="tab-content active">
-      <div class="achievements-header">
-        <div class="filter-pills">
-          <button class="filter-btn active" onclick="filtrarLogros('todos')">Todos</button>
-          <button class="filter-btn" onclick="filtrarLogros('comun')">Común</button>
-          <button class="filter-btn" onclick="filtrarLogros('raro')">Raro</button>
-          <button class="filter-btn" onclick="filtrarLogros('muy_raro')">Muy Raro</button>
-          <button class="filter-btn" onclick="filtrarLogros('inaudito')">Inaudito</button>
-        </div>
-        <span id="disp-ach-count" style="font-weight:800; color:var(--primary); font-size:0.9rem;">0 / 0</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <h3 style="font-size:1.2rem; font-weight:800;">Logros Desbloqueados</h3>
+        <span id="disp-ach-count" style="font-weight:800; color:var(--primary);">0 / 0</span>
       </div>
-
       <div class="ach-grid" id="achievements-container"></div>
     </div>
 
-    <div id="tab-checkin-view" class="tab-content">
-      <div class="checkin-card">
-        <div>
-          <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:4px;">Recompensa Diaria de la Comunidad</h3>
-          <p style="color:var(--text-muted); font-size:0.9rem;">¡Reclama 50 Enjoirs cada día que visites la web!</p>
+    <div id="tab-amigos-view" class="tab-content">
+      <div class="card-block" style="margin-bottom:20px;">
+        <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:12px;">🔍 Añadir Amigo por ID</h3>
+        <div style="display:flex; gap:10px;">
+          <input type="text" id="input-add-friend" placeholder="Ingresa el UID (Ej: usr_20260817...)" style="flex:1; padding:10px 14px; border:1.5px solid var(--card-border); border-radius:10px; outline:none;">
+          <button class="btn-sm btn-sm-primary" style="padding:10px 20px;" onclick="enviarSolicitudAmigo()">Enviar Solicitud</button>
         </div>
-        <button class="btn-hoyo" style="width:auto; padding:10px 24px;" id="btn-checkin" onclick="reclamarCheckin()">Reclamar Check-in</button>
+        <div id="friend-search-msg" style="font-size:0.85rem; font-weight:700; margin-top:8px;"></div>
       </div>
-      <div id="checkin-msg" style="font-size:0.9rem; font-weight:700;"></div>
+
+      <div class="card-block">
+        <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:16px;">Lista de Amigos (<span id="cnt-friends">0</span>)</h3>
+        <div id="friends-list-container">
+          <p style="color:var(--text-muted); font-size:0.9rem;">No tienes amigos agregados aún. ¡Comparte tu UID!</p>
+        </div>
+      </div>
     </div>
 
-    <div id="tab-pase-view" class="tab-content">
-      <div class="checkin-card" style="flex-direction:column; align-items:flex-start; gap:16px;">
-        <h3 style="font-size:1.2rem; font-weight:800;">Pase de Batalla - Temporada Activa</h3>
-        <p style="color:var(--text-muted); font-size:0.9rem;">Desbloquea recompensas exclusivas subiendo de nivel en el juego.</p>
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; width:100%; border-radius:12px; padding:16px; display:flex; justify-content:space-around;">
-          <div style="text-align:center;">
-            <div style="font-size:0.8rem; color:var(--text-muted);">CARRIL GRATUITO</div>
-            <div style="font-weight:800; font-size:1.1rem; color:#10b981;">Activo ✓</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:0.8rem; color:var(--text-muted);">PASE DORADO</div>
-            <div style="font-weight:800; font-size:1.1rem; color:#f59e0b;" id="disp-pase-status">Bloqueado 🔒</div>
-          </div>
+    <div id="tab-buzon-view" class="tab-content">
+      <div class="card-block" style="margin-bottom:20px;">
+        <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:14px;">✉️ Solicitudes de Amistad Pendientes</h3>
+        <div id="solicitudes-container">
+          <p style="color:var(--text-muted); font-size:0.9rem;">No tienes solicitudes pendientes.</p>
         </div>
       </div>
+
+      <div class="card-block">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h3 style="font-size:1.1rem; font-weight:800;">📬 Correos y Mensajes</h3>
+          <button class="btn-sm btn-sm-primary" onclick="abrirModalMensaje()">Redactar Correo</button>
+        </div>
+        <div id="mensajes-container">
+          <p style="color:var(--text-muted); font-size:0.9rem;">Tu buzón está vacío.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-checkin-view" class="tab-content">
+      <div class="card-block" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h3 style="font-size:1.2rem; font-weight:800;">Recompensa Diaria</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem;">Reclama +50 Enjoirs cada día en la web.</p>
+        </div>
+        <button class="btn-hoyo" style="width:auto; padding:10px 24px;" onclick="reclamarCheckin()">Reclamar</button>
+      </div>
+      <div id="checkin-msg" style="font-size:0.9rem; font-weight:700; margin-top:10px;"></div>
     </div>
 
   </main>
+
+  <div id="crop-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="font-size:1.2rem; font-weight:800;">Ajustar Foto de Perfil</h3>
+      <p style="color:var(--text-muted); font-size:0.85rem;">Arrastra y acomoda la imagen en el círculo</p>
+      
+      <div class="crop-container">
+        <img id="crop-image" src="" alt="A recortar">
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn-sm btn-sm-danger" onclick="cerrarCropper()">Cancelar</button>
+        <button class="btn-sm btn-sm-primary" onclick="guardarRecorteAvatar()">Guardar Foto</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mail-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:14px;">✉️ Enviar Correo a un Amigo</h3>
+      <form onsubmit="enviarMensaje(event)">
+        <div class="input-box">
+          <label>UID del Destinatario</label>
+          <input type="text" id="mail-dest-uid" required placeholder="usr_...">
+        </div>
+        <div class="input-box">
+          <label>Asunto</label>
+          <input type="text" id="mail-asunto" required placeholder="¡Vamos a jugar unas partidas!">
+        </div>
+        <div class="input-box">
+          <label>Mensaje</label>
+          <textarea id="mail-cuerpo" rows="4" required placeholder="Escribe tu mensaje..."></textarea>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn-sm btn-sm-danger" onclick="cerrarModalMensaje()">Cancelar</button>
+          <button type="submit" class="btn-sm btn-sm-primary">Enviar Correo</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script>
     // --- 1. FIREBASE CONFIG ---
     const firebaseConfig = {
       databaseURL: "https://jopjoirdatabase-default-rtdb.firebaseio.com"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- 2. LISTA DE LOGROS IDÉNTICA A GAMEMAKER ---
+    // --- 2. LISTA DE LOGROS GAMEMAKER ---
     const LISTA_LOGROS = [
       { id: "joircazador_aereo", titulo: "Joircazador Aéreo", desc: "Derrotar un enemigo estando en el aire", rareza: "comun", meta: 1 },
       { id: "suerte_de_joir", titulo: "Suerte de Joir", desc: "Recolectar un Duluck durante una partida", rareza: "muy_raro", meta: 1 },
@@ -579,30 +663,19 @@
       { id: "cazador_joirs_2", titulo: "Cazador de Joirs II", desc: "Derrotar 15 enemigos en una partida", rareza: "raro", meta: 15 },
       { id: "cazador_joirs_3", titulo: "Cazador de Joirs III", desc: "Derrotar 25 enemigos en una partida", rareza: "muy_raro", meta: 25 },
       { id: "cazador_joirs_4", titulo: "Cazador de Joirs IV", desc: "Derrotar 30 enemigos en una partida", rareza: "inaudito", meta: 30 },
-      
       { id: "campeon_invicto_1", titulo: "Campeón Joirinvicto I", desc: "Racha de 5 victorias", rareza: "comun", meta: 5 },
       { id: "campeon_invicto_2", titulo: "Campeón Joirinvicto II", desc: "Racha de 10 victorias", rareza: "raro", meta: 10 },
       { id: "campeon_invicto_3", titulo: "Campeón Joirinvicto III", desc: "Racha de 15 victorias", rareza: "muy_raro", meta: 15 },
-      { id: "campeon_invicto_4", titulo: "Campeón Joirinvicto IV", desc: "Racha de 20 victorias", rareza: "muy_raro", meta: 20 },
-      { id: "campeon_invicto_5", titulo: "Campeón Joirinvicto V", desc: "Racha de 50 victorias", rareza: "inaudito", meta: 50 },
-
       { id: "joir_extremo_1", titulo: "Joir al extremo I", desc: "Ganar 10 partidas de Extremo", rareza: "comun", meta: 10 },
       { id: "joir_extremo_2", titulo: "Joir al extremo II", desc: "Ganar 20 partidas de Extremo", rareza: "comun", meta: 20 },
-      { id: "joir_extremo_3", titulo: "Joir al extremo III", desc: "Ganar 50 partidas de Extremo", rareza: "raro", meta: 50 },
-      { id: "joir_extremo_4", titulo: "Joir al extremo IV", desc: "Ganar 100 partidas de Extremo", rareza: "muy_raro", meta: 100 },
-      { id: "joir_extremo_5", titulo: "Joir al extremo V", desc: "Ganar 500 partidas de Extremo", rareza: "inaudito", meta: 500 },
-
       { id: "alcancia_1", titulo: "Alcancía I", desc: "Ahorrar 500 Enjoirs", rareza: "comun", meta: 500 },
-      { id: "alcancia_2", titulo: "Alcancía II", desc: "Ahorrar 1000 Enjoirs", rareza: "comun", meta: 1000 },
-      { id: "alcancia_3", titulo: "Alcancía III", desc: "Ahorrar 2500 Enjoirs", rareza: "raro", meta: 2500 },
-      { id: "alcancia_4", titulo: "Alcancía IV", desc: "Ahorrar 5000 Enjoirs", rareza: "muy_raro", meta: 5000 },
-      { id: "alcancia_5", titulo: "Alcancía V", desc: "Ahorrar 10000 Enjoirs", rareza: "inaudito", meta: 10000 }
+      { id: "alcancia_2", titulo: "Alcancía II", desc: "Ahorrar 1000 Enjoirs", rareza: "comun", meta: 1000 }
     ];
 
     let currentMode = "login";
     let activeUID = null;
     let currentUserData = null;
-    let filtroActual = "todos";
+    let cropper = null;
 
     function cleanUsername(str) {
       return str.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -617,28 +690,21 @@
       document.getElementById("auth-msg").textContent = "";
     }
 
-    function switchDashboardTab(tabName) {
+    function switchDashboardTab(tabName, btn) {
       document.querySelectorAll('.hoyo-nav-item').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-
-      event.target.classList.add('active');
+      btn.classList.add('active');
       document.getElementById(`tab-${tabName}-view`).classList.add('active');
     }
 
-    // --- 3. AUTENTICACIÓN ---
+    // --- 3. AUTENTICACIÓN DIRECTA CON BASE DE GAMEMAKER ---
     async function handleAuth(e) {
       e.preventDefault();
       const txt_user = document.getElementById("auth-user").value.trim();
       const txt_pass = document.getElementById("auth-pass").value;
       const txt_email = document.getElementById("auth-email").value.trim();
       const msg = document.getElementById("auth-msg");
-
       const user_clean = cleanUsername(txt_user);
-      if (!user_clean) {
-        msg.style.color = "#ef4444";
-        msg.textContent = "Usuario inválido.";
-        return;
-      }
 
       msg.style.color = "#f59e0b";
       msg.textContent = "Conectando...";
@@ -647,21 +713,15 @@
         try {
           const snapshot = await db.ref('usernames/' + user_clean).once('value');
           const userData = snapshot.val();
-
           if (userData && userData.pass === txt_pass) {
-            msg.style.color = "#10b981";
-            msg.textContent = "¡Acceso concedido!";
             localStorage.setItem("jopjoir_uid", userData.uid);
             localStorage.setItem("jopjoir_username", txt_user);
             iniciarDashboard(userData.uid, txt_user);
-          } else if (userData) {
-            msg.style.color = "#ef4444";
-            msg.textContent = "Contraseña incorrecta.";
           } else {
             msg.style.color = "#ef4444";
-            msg.textContent = "El usuario no existe.";
+            msg.textContent = userData ? "Contraseña incorrecta." : "El usuario no existe.";
           }
-        } catch (err) {
+        } catch(e) {
           msg.style.color = "#ef4444";
           msg.textContent = "Error al conectar con la base de datos.";
         }
@@ -670,40 +730,30 @@
           const snapshot = await db.ref('usernames/' + user_clean).once('value');
           if (snapshot.exists()) {
             msg.style.color = "#ef4444";
-            msg.textContent = "El nombre de usuario ya está en uso.";
+            msg.textContent = "Ese nombre de usuario ya existe.";
             return;
           }
-
           const now = new Date();
-          const y = now.getFullYear();
-          const m = String(now.getMonth() + 1).padStart(2, '0');
-          const d = String(now.getDate()).padStart(2, '0');
-          const rnd = Math.floor(100000 + Math.random() * 900000);
-          const nuevo_uid = `usr_${y}${m}${d}${rnd}`;
+          const uid = `usr_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}${Math.floor(100000 + Math.random() * 900000)}`;
 
-          await db.ref('usernames/' + user_clean).set({
-            uid: nuevo_uid,
-            email: txt_email,
-            pass: txt_pass
-          });
-
-          await db.ref('users/' + nuevo_uid).set({
-            info: { username: txt_user, email: txt_email },
+          await db.ref('usernames/' + user_clean).set({ uid: uid, email: txt_email, pass: txt_pass });
+          await db.ref('users/' + uid).set({
+            info: { username: txt_user, email: txt_email, avatar: "" },
             inventario: { enjoirs: 0, dulucks: 0, tickets: 0 },
             stats: { nivel: 1 }
           });
 
-          localStorage.setItem("jopjoir_uid", nuevo_uid);
+          localStorage.setItem("jopjoir_uid", uid);
           localStorage.setItem("jopjoir_username", txt_user);
-          iniciarDashboard(nuevo_uid, txt_user);
-        } catch (err) {
+          iniciarDashboard(uid, txt_user);
+        } catch(e) {
           msg.style.color = "#ef4444";
           msg.textContent = "Error al registrar la cuenta.";
         }
       }
     }
 
-    // --- 4. PANEL Y SINCRONIZACIÓN ---
+    // --- 4. PANEL PRINCIPAL ---
     function iniciarDashboard(uid, username) {
       activeUID = uid;
       document.getElementById("auth-view").style.display = "none";
@@ -711,63 +761,307 @@
       document.getElementById("nav-user-actions").style.display = "block";
 
       document.getElementById("disp-username").textContent = username;
-      document.getElementById("disp-uid").textContent = `UID: ${uid}`;
-      document.getElementById("disp-avatar").textContent = username.charAt(0).toUpperCase();
+      document.getElementById("disp-uid").textContent = `UID: ${uid} 📋`;
 
       db.ref('users/' + uid).on('value', (snapshot) => {
         currentUserData = snapshot.val() || {};
 
-        if (currentUserData.info?.username) {
-          document.getElementById("disp-username").textContent = currentUserData.info.username;
+        // Info & Avatar
+        const uname = currentUserData.info?.username || username;
+        document.getElementById("disp-username").textContent = uname;
+        
+        const avatarEl = document.getElementById("disp-avatar");
+        if (currentUserData.info?.avatar) {
+          avatarEl.innerHTML = `<img src="${currentUserData.info.avatar}">`;
+        } else {
+          avatarEl.textContent = uname.charAt(0).toUpperCase();
         }
 
-        const enjoirs = currentUserData.inventario?.enjoirs ?? 0;
-        const dulucks = currentUserData.inventario?.dulucks ?? (currentUserData.inventario?.duluck ?? 0);
-        const tickets = currentUserData.inventario?.tickets ?? 0;
-        const nivel = currentUserData.stats?.nivel ?? 1;
+        // Monedas
+        document.getElementById("disp-level").textContent = `Lv. ${currentUserData.stats?.nivel ?? 1}`;
+        document.getElementById("cnt-enjoirs").textContent = (currentUserData.inventario?.enjoirs ?? 0).toLocaleString();
+        document.getElementById("cnt-dulucks").textContent = (currentUserData.inventario?.dulucks ?? 0).toLocaleString();
+        document.getElementById("cnt-tickets").textContent = (currentUserData.inventario?.tickets ?? 0).toLocaleString();
 
-        document.getElementById("disp-level").textContent = `Lv. ${nivel}`;
-        document.getElementById("cnt-enjoirs").textContent = enjoirs.toLocaleString();
-        document.getElementById("cnt-dulucks").textContent = dulucks.toLocaleString();
-        document.getElementById("cnt-tickets").textContent = tickets.toLocaleString();
-
+        // Renderizar secciones
         renderLogros();
+        renderAmigos(currentUserData.amigos || {});
+        renderBuzon(currentUserData.solicitudes || {}, currentUserData.buzon || {});
       });
     }
 
-    // --- 5. RENDERIZADO DE LOGROS & FILTRADO ---
-    function filtrarLogros(rareza) {
-      filtroActual = rareza;
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.toLowerCase().replace(' ', '_') === rareza || (rareza === 'todos' && btn.textContent === 'Todos'));
-      });
-      renderLogros();
+    function copiarUID() {
+      navigator.clipboard.writeText(activeUID);
+      alert("¡UID copiado al portapapeles!");
     }
 
+    // --- 5. RECORTADOR DE AVATAR (CROPPER.JS) ---
+    function abrirSelectorAvatar() {
+      document.getElementById("file-avatar-input").click();
+    }
+
+    function imagenSeleccionada(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const image = document.getElementById('crop-image');
+        image.src = e.target.result;
+        document.getElementById('crop-modal').style.display = 'flex';
+
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(image, {
+          aspectRatio: 1,
+          viewMode: 1,
+          dragMode: 'move',
+          autoCropArea: 0.9,
+          cropBoxResizable: false,
+          guides: false
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function cerrarCropper() {
+      document.getElementById('crop-modal').style.display = 'none';
+      if (cropper) cropper.destroy();
+      document.getElementById("file-avatar-input").value = "";
+    }
+
+    async function guardarRecorteAvatar() {
+      if (!cropper || !activeUID) return;
+
+      const canvas = cropper.getCroppedCanvas({ width: 160, height: 160 });
+      const base64Avatar = canvas.toDataURL('image/jpeg', 0.85);
+
+      await db.ref('users/' + activeUID + '/info/avatar').set(base64Avatar);
+      cerrarCropper();
+    }
+
+    // --- 6. SISTEMA DE AMIGOS POR ID ---
+    async function enviarSolicitudAmigo() {
+      const targetUID = document.getElementById("input-add-friend").value.trim();
+      const msg = document.getElementById("friend-search-msg");
+
+      if (!targetUID || targetUID === activeUID) {
+        msg.style.color = "#ef4444";
+        msg.textContent = targetUID === activeUID ? "No puedes agregarte a ti mismo." : "Ingresa una ID válida.";
+        return;
+      }
+
+      msg.style.color = "#f59e0b";
+      msg.textContent = "Buscando usuario...";
+
+      try {
+        const snap = await db.ref('users/' + targetUID).once('value');
+        if (!snap.exists()) {
+          msg.style.color = "#ef4444";
+          msg.textContent = "No se encontró ningún jugador con esa ID.";
+          return;
+        }
+
+        const targetData = snap.val();
+        if (currentUserData.amigos && currentUserData.amigos[targetUID]) {
+          msg.style.color = "#ef4444";
+          msg.textContent = "Ya son amigos.";
+          return;
+        }
+
+        // Registrar solicitud en el destinatario
+        await db.ref(`users/${targetUID}/solicitudes/${activeUID}`).set({
+          sender_uid: activeUID,
+          sender_name: currentUserData.info?.username || "Jugador",
+          sender_avatar: currentUserData.info?.avatar || "",
+          fecha: new Date().toLocaleDateString()
+        });
+
+        msg.style.color = "#10b981";
+        msg.textContent = `¡Solicitud enviada a ${targetData.info?.username || targetUID}!`;
+        document.getElementById("input-add-friend").value = "";
+      } catch (err) {
+        msg.style.color = "#ef4444";
+        msg.textContent = "Error al enviar la solicitud.";
+      }
+    }
+
+    async function responderSolicitud(remitenteUID, aceptar) {
+      if (aceptar) {
+        const snapRemitente = await db.ref('users/' + remitenteUID).once('value');
+        const dataRem = snapRemitente.val() || {};
+
+        // Agregar a la lista de amigos de ambos
+        await db.ref(`users/${activeUID}/amigos/${remitenteUID}`).set({
+          username: dataRem.info?.username || "Amigo",
+          avatar: dataRem.info?.avatar || "",
+          nivel: dataRem.stats?.nivel || 1
+        });
+
+        await db.ref(`users/${remitenteUID}/amigos/${activeUID}`).set({
+          username: currentUserData.info?.username || "Amigo",
+          avatar: currentUserData.info?.avatar || "",
+          nivel: currentUserData.stats?.nivel || 1
+        });
+      }
+
+      // Eliminar solicitud
+      await db.ref(`users/${activeUID}/solicitudes/${remitenteUID}`).remove();
+    }
+
+    function renderAmigos(amigosObj) {
+      const container = document.getElementById("friends-list-container");
+      const uids = Object.keys(amigosObj);
+      document.getElementById("cnt-friends").textContent = uids.length;
+
+      if (uids.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">No tienes amigos agregados aún. ¡Comparte tu UID!</p>`;
+        return;
+      }
+
+      container.innerHTML = "";
+      uids.forEach(fUid => {
+        const f = amigosObj[fUid];
+        const card = document.createElement("div");
+        card.className = "friend-card";
+        card.innerHTML = `
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="user-avatar-mini">
+              ${f.avatar ? `<img src="${f.avatar}">` : f.username.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div style="font-weight:700;">${f.username}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Lv. ${f.nivel || 1} • ${fUid}</div>
+            </div>
+          </div>
+          <button class="btn-sm btn-sm-primary" onclick="abrirModalMensaje('${fUid}')">Enviar Correo</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- 7. BANDEJA DE ENTRADA & MENSAJES ---
+    function renderBuzon(solicitudesObj, buzonObj) {
+      const solContainer = document.getElementById("solicitudes-container");
+      const msgContainer = document.getElementById("mensajes-container");
+      const solKeys = Object.keys(solicitudesObj);
+      const msgKeys = Object.keys(buzonObj);
+
+      // Actualizar burbuja de notificación
+      const totalNotif = solKeys.length + msgKeys.length;
+      const badge = document.getElementById("badge-inbox");
+      if (totalNotif > 0) {
+        badge.style.display = "inline-block";
+        badge.textContent = totalNotif;
+      } else {
+        badge.style.display = "none";
+      }
+
+      // 1. Render Solicitudes
+      if (solKeys.length === 0) {
+        solContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">No tienes solicitudes pendientes.</p>`;
+      } else {
+        solContainer.innerHTML = "";
+        solKeys.forEach(sUid => {
+          const req = solicitudesObj[sUid];
+          const item = document.createElement("div");
+          item.className = "inbox-item";
+          item.innerHTML = `
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="user-avatar-mini">
+                ${req.sender_avatar ? `<img src="${req.sender_avatar}">` : req.sender_name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div style="font-weight:700;">${req.sender_name}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Solicitud recibida • ${req.fecha || ''}</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-sm btn-sm-success" onclick="responderSolicitud('${sUid}', true)">Aceptar</button>
+              <button class="btn-sm btn-sm-danger" onclick="responderSolicitud('${sUid}', false)">Rechazar</button>
+            </div>
+          `;
+          solContainer.appendChild(item);
+        });
+      }
+
+      // 2. Render Mensajes/Correos
+      if (msgKeys.length === 0) {
+        msgContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">Tu buzón está vacío.</p>`;
+      } else {
+        msgContainer.innerHTML = "";
+        msgKeys.forEach(mKey => {
+          const m = buzonObj[mKey];
+          const item = document.createElement("div");
+          item.className = "inbox-item";
+          item.style.flexDirection = "column";
+          item.style.alignItems = "flex-start";
+          item.style.gap = "8px";
+          item.innerHTML = `
+            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+              <div style="font-weight:700; color:var(--primary); font-size:0.95rem;">${m.asunto}</div>
+              <button class="btn-sm btn-sm-danger" onclick="borrarMensaje('${mKey}')" style="padding:4px 8px; font-size:0.7rem;">Eliminar</button>
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-dark);">${m.cuerpo}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">De: <b>${m.remitente_nombre}</b> (${m.fecha})</div>
+          `;
+          msgContainer.appendChild(item);
+        });
+      }
+    }
+
+    function abrirModalMensaje(destUid = "") {
+      document.getElementById("mail-dest-uid").value = destUid;
+      document.getElementById("mail-modal").style.display = "flex";
+    }
+
+    function cerrarModalMensaje() {
+      document.getElementById("mail-modal").style.display = "none";
+      document.getElementById("mail-asunto").value = "";
+      document.getElementById("mail-cuerpo").value = "";
+    }
+
+    async function enviarMensaje(e) {
+      e.preventDefault();
+      const destUID = document.getElementById("mail-dest-uid").value.trim();
+      const asunto = document.getElementById("mail-asunto").value.trim();
+      const cuerpo = document.getElementById("mail-cuerpo").value.trim();
+
+      const snapDest = await db.ref('users/' + destUID).once('value');
+      if (!snapDest.exists()) {
+        alert("El UID de destino no existe.");
+        return;
+      }
+
+      await db.ref(`users/${destUID}/buzon`).push({
+        remitente_uid: activeUID,
+        remitente_nombre: currentUserData.info?.username || "Jugador",
+        asunto: asunto,
+        cuerpo: cuerpo,
+        fecha: new Date().toLocaleString()
+      });
+
+      alert("¡Correo enviado con éxito!");
+      cerrarModalMensaje();
+    }
+
+    async function borrarMensaje(mailKey) {
+      await db.ref(`users/${activeUID}/buzon/${mailKey}`).remove();
+    }
+
+    // --- 8. RENDER LOGROS & CHECK-IN ---
     function renderLogros() {
       const container = document.getElementById("achievements-container");
       container.innerHTML = "";
       let completados = 0;
       const userLogros = currentUserData?.logros || {};
 
-      const filtrados = LISTA_LOGROS.filter(l => filtroActual === "todos" || l.rareza === filtroActual);
-
       LISTA_LOGROS.forEach(l => {
-        const item = userLogros[l.id];
-        let desbloqueado = false;
-        if (typeof item === "object" && item !== null) desbloqueado = !!(item.unlocked ?? item.desbloqueado);
-        else if (typeof item === "boolean") desbloqueado = item;
-        else if (typeof item === "number") desbloqueado = item >= l.meta;
-        if (desbloqueado) completados++;
-      });
-
-      filtrados.forEach(l => {
         const item = userLogros[l.id];
         let desbloqueado = false;
         let valor = 0;
 
         if (typeof item === "object" && item !== null) {
-          desbloqueado = !!(item.unlocked ?? item.desbloqueado ?? false);
+          desbloqueado = !!(item.unlocked ?? item.desbloqueado);
           valor = Number(item.val ?? item.valor ?? 0);
         } else if (typeof item === "boolean") {
           desbloqueado = item;
@@ -777,53 +1071,44 @@
           valor = item;
         }
 
+        if (desbloqueado) completados++;
         const pct = Math.min(100, Math.round((valor / l.meta) * 100));
 
         const card = document.createElement("div");
         card.className = `ach-item ${desbloqueado ? 'unlocked' : 'locked'}`;
-
         card.innerHTML = `
           <div class="ach-icon-box">${desbloqueado ? '🏆' : '🔒'}</div>
           <div class="ach-body">
             <div class="ach-title-row">
-              <span class="ach-title">${l.titulo}</span>
+              <span style="font-weight:700; font-size:0.95rem;">${l.titulo}</span>
               <span class="badge-rarity badge-${l.rareza}">${l.rareza.replace('_', ' ')}</span>
             </div>
-            <div class="ach-desc">${l.desc}</div>
+            <div style="font-size:0.82rem; color:var(--text-muted);">${l.desc}</div>
             <div class="ach-progress-bar">
               <div class="ach-progress-fill" style="width: ${desbloqueado ? 100 : pct}%;"></div>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-top:6px; font-weight:700;">
-              <span>${desbloqueado ? 'Completado' : 'En progreso'}</span>
-              <span>${valor} / ${l.meta}</span>
             </div>
           </div>
         `;
         container.appendChild(card);
       });
 
-      document.getElementById("disp-ach-count").textContent = `${completados} / ${LISTA_LOGROS.length} Desbloqueados`;
+      document.getElementById("disp-ach-count").textContent = `${completados} / ${LISTA_LOGROS.length}`;
     }
 
-    // --- 6. CHECK-IN DIARIO ---
     async function reclamarCheckin() {
       if (!activeUID || !currentUserData) return;
-
       const hoy = new Date().toISOString().slice(0, 10);
-      const ultimoCheckin = currentUserData.ultimo_checkin;
       const msg = document.getElementById("checkin-msg");
 
-      if (ultimoCheckin === hoy) {
+      if (currentUserData.ultimo_checkin === hoy) {
         msg.style.color = "#ef4444";
-        msg.textContent = "Ya has reclamado tu recompensa de hoy. ¡Vuelve mañana!";
+        msg.textContent = "Ya has reclamado la recompensa de hoy.";
         return;
       }
 
-      const nuevosEnjoirs = (currentUserData.inventario?.enjoirs ?? 0) + 50;
-
       await db.ref('users/' + activeUID).update({
         "ultimo_checkin": hoy,
-        "inventario/enjoirs": nuevosEnjoirs
+        "inventario/enjoirs": (currentUserData.inventario?.enjoirs ?? 0) + 50
       });
 
       msg.style.color = "#10b981";
