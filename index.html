@@ -8,6 +8,8 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
@@ -93,6 +95,17 @@
     .input-box input:focus, .input-box textarea:focus, .input-box select:focus { border-color: var(--primary); }
     .btn-hoyo { width: 100%; padding: 14px; border: none; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; font-weight: 700; border-radius: 12px; cursor: pointer; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25); transition: transform 0.2s; }
     .btn-hoyo:hover { transform: translateY(-2px); }
+
+    .forgot-link {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .forgot-link:hover { text-decoration: underline; }
 
     /* COMPONENTES GLOBALES */
     .card-block { background: white; border: 1px solid var(--card-border); border-radius: var(--radius); padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 20px; }
@@ -194,17 +207,57 @@
   <div id="auth-view">
     <div class="auth-box">
       <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:6px;">JopJoir Hub</h2>
-      <p style="color:var(--text-muted); font-size:0.9rem;">Accede a tu cuenta de juego para sincronizar tu perfil social</p>
-      <div class="auth-tabs">
+      <p style="color:var(--text-muted); font-size:0.9rem;" id="auth-desc">Accede a tu cuenta de juego para sincronizar tu perfil social</p>
+      
+      <div class="auth-tabs" id="main-auth-tabs">
         <button id="tab-login" class="active" onclick="switchTab('login')">Ingresar</button>
         <button id="tab-register" onclick="switchTab('register')">Registrarse</button>
       </div>
+
       <form id="auth-form" onsubmit="handleAuth(event)">
-        <div class="input-box"><label>Nombre de Usuario</label><input type="text" id="auth-user" required placeholder="Tu nombre en el juego"></div>
-        <div class="input-box" id="group-email" style="display:none;"><label>Correo Electrónico</label><input type="email" id="auth-email" placeholder="correo@ejemplo.com"></div>
-        <div class="input-box"><label>Contraseña</label><input type="password" id="auth-pass" required placeholder="••••••••"></div>
+        <div class="input-box" id="group-username">
+          <label>Nombre de Usuario</label>
+          <input type="text" id="auth-user" required placeholder="Tu nombre en el juego">
+        </div>
+
+        <div class="input-box" id="group-email" style="display:none;">
+          <label>Correo Electrónico</label>
+          <input type="email" id="auth-email" placeholder="correo@ejemplo.com">
+        </div>
+
+        <div class="input-box" id="group-pass">
+          <label>Contraseña</label>
+          <input type="password" id="auth-pass" required placeholder="••••••••">
+        </div>
+
         <button type="submit" class="btn-hoyo" id="btn-submit">Iniciar Sesión</button>
       </form>
+
+      <form id="forgot-form" style="display:none;" onsubmit="handleForgotPassword(event)">
+        <div id="forgot-step-1">
+          <div class="input-box">
+            <label>Nombre de Usuario</label>
+            <input type="text" id="forgot-user" required placeholder="Ingresa tu usuario del juego">
+          </div>
+          <button type="submit" class="btn-hoyo" id="btn-send-code">Enviar Código al Correo</button>
+        </div>
+
+        <div id="forgot-step-2" style="display:none;">
+          <div class="input-box">
+            <label>Código de Verificación (6 dígitos)</label>
+            <input type="text" id="forgot-code" required placeholder="Ej: 123456" maxlength="6">
+          </div>
+          <div class="input-box">
+            <label>Nueva Contraseña</label>
+            <input type="password" id="forgot-new-pass" required placeholder="••••••••">
+          </div>
+          <button type="button" class="btn-hoyo" onclick="cambiarPasswordConCodigo()">Restablecer Contraseña</button>
+        </div>
+      </form>
+
+      <a class="forgot-link" id="link-forgot" onclick="switchTab('forgot')">¿Olvidaste tu contraseña?</a>
+      <a class="forgot-link" id="link-back-login" style="display:none;" onclick="switchTab('login')">← Volver al Inicio de Sesión</a>
+
       <div id="auth-msg" style="margin-top:14px; font-size:0.85rem; font-weight:700; min-height:20px;"></div>
     </div>
   </div>
@@ -212,13 +265,15 @@
   <div id="app-layout">
     
     <aside class="sidebar">
-      <div class="brand"><span>🎮</span> JopJoir</div>
-      <nav class="nav-menu">
-        <div class="nav-item active" onclick="navigate('foro', this)"><span class="icon">💬</span><span class="label">Plaza Joir</span></div>
-        <div class="nav-item" onclick="navigate('ranking', this)"><span class="icon">🏆</span><span class="label">Ranking</span></div>
-        <div class="nav-item" onclick="navigate('herramientas', this)"><span class="icon">🎁</span><span class="label">Check-in</span></div>
-        <div class="nav-item" onclick="navigate('perfil', this)"><span class="icon">👤</span><span class="label">Mi Perfil</span></div>
-      </nav>
+      <div>
+        <div class="brand"><span>🎮</span> JopJoir</div>
+        <nav class="nav-menu">
+          <div class="nav-item active" onclick="navigate('foro', this)"><span class="icon">💬</span><span class="label">Plaza Joir</span></div>
+          <div class="nav-item" onclick="navigate('ranking', this)"><span class="icon">🏆</span><span class="label">Ranking</span></div>
+          <div class="nav-item" onclick="navigate('herramientas', this)"><span class="icon">🎁</span><span class="label">Check-in</span></div>
+          <div class="nav-item" onclick="navigate('perfil', this)"><span class="icon">👤</span><span class="label">Mi Perfil</span></div>
+        </nav>
+      </div>
     </aside>
 
     <div class="main-wrapper">
@@ -523,10 +578,19 @@
   </div>
 
   <script>
-    // --- 1. FIREBASE CONFIG ---
+    // --- 1. CONFIGURACIÓN FIREBASE & EMAILJS ---
     const firebaseConfig = { databaseURL: "https://jopjoirdatabase-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+
+    // 💡 CONFIGURACIÓN EMAILJS (Reemplaza con tus claves de emailjs.com):
+    const EMAILJS_PUBLIC_KEY = "crC30kW_4XNwmB8iF";
+    const EMAILJS_SERVICE_ID = "service_68ylknq";
+    const EMAILJS_TEMPLATE_ID = "template_kf2f2c3";
+
+    if (EMAILJS_PUBLIC_KEY !== "crC30kW_4XNwmB8iF") {
+      emailjs.init(EMAILJS_PUBLIC_KEY);
+    }
 
     // --- 2. LISTA EXACTA DE LOS 35 LOGROS DE GAMEMAKER ---
     const LISTA_LOGROS = [
@@ -575,13 +639,14 @@
     let filtroActual = "todos";
     let postImageBase64 = "";
 
-    // Caché de posts para el buscador del foro
     let allForumPosts = [];
     let foroCatSeleccionada = "Todos";
 
+    // Variables temporales para recuperación de clave
+    let resetTempData = null;
+
     function cleanUsername(str) { return str.toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
-    // Helpers de Roles
     function esAdmin(username, customRole) {
       return (username && username.toLowerCase() === "catteru2") || customRole === "admin";
     }
@@ -594,18 +659,44 @@
       return "";
     }
 
-    // Modal de Descargas
     function abrirModalDescargas() { document.getElementById("download-hub-modal").style.display = "flex"; }
     function cerrarModalDescargas() { document.getElementById("download-hub-modal").style.display = "none"; }
 
     // --- NAVEGACIÓN ---
     function switchTab(mode) {
       currentMode = mode;
+      document.getElementById("auth-msg").textContent = "";
+
+      const authForm = document.getElementById("auth-form");
+      const forgotForm = document.getElementById("forgot-form");
+      const mainTabs = document.getElementById("main-auth-tabs");
+      const linkForgot = document.getElementById("link-forgot");
+      const linkBack = document.getElementById("link-back-login");
+      const authDesc = document.getElementById("auth-desc");
+
+      if (mode === "forgot") {
+        authForm.style.display = "none";
+        forgotForm.style.display = "block";
+        mainTabs.style.display = "none";
+        linkForgot.style.display = "none";
+        linkBack.style.display = "inline-block";
+        authDesc.textContent = "Recupera el acceso a tu cuenta mediante tu correo";
+        document.getElementById("forgot-step-1").style.display = "block";
+        document.getElementById("forgot-step-2").style.display = "none";
+        return;
+      }
+
+      authForm.style.display = "block";
+      forgotForm.style.display = "none";
+      mainTabs.style.display = "flex";
+      linkForgot.style.display = (mode === "login") ? "inline-block" : "none";
+      linkBack.style.display = "none";
+      authDesc.textContent = "Accede a tu cuenta de juego para sincronizar tu perfil social";
+
       document.getElementById("tab-login").classList.toggle("active", mode === "login");
       document.getElementById("tab-register").classList.toggle("active", mode === "register");
       document.getElementById("group-email").style.display = mode === "register" ? "block" : "none";
       document.getElementById("btn-submit").textContent = mode === "register" ? "Crear Cuenta" : "Iniciar Sesión";
-      document.getElementById("auth-msg").textContent = "";
     }
 
     function navigate(viewId, btnEl = null) {
@@ -668,6 +759,103 @@
           });
           iniciarSesionExito(uid, txt_user);
         } catch(err) { msg.style.color = "#ef4444"; msg.textContent = "Error al registrar."; }
+      }
+    }
+
+    // --- RECUPERACIÓN DE CONTRASEÑA ---
+    async function handleForgotPassword(e) {
+      e.preventDefault();
+      const txt_user = document.getElementById("forgot-user").value.trim();
+      const msg = document.getElementById("auth-msg");
+      const user_clean = cleanUsername(txt_user);
+
+      msg.style.color = "#f59e0b";
+      msg.textContent = "Buscando cuenta...";
+
+      try {
+        const snap = await db.ref('usernames/' + user_clean).once('value');
+        const userData = snap.val();
+
+        if (!userData || !userData.email) {
+          msg.style.color = "#ef4444";
+          msg.textContent = "No se encontró un correo asociado a este usuario.";
+          return;
+        }
+
+        // Generar código de 6 dígitos
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+
+        resetTempData = {
+          user_clean: user_clean,
+          uid: userData.uid,
+          email: userData.email,
+          codigo: codigo,
+          expira: Date.now() + (15 * 60 * 1000) // 15 minutos
+        };
+
+        // Guardar código temporal en Firebase
+        await db.ref('reset_passwords/' + user_clean).set(resetTempData);
+
+        // Envío vía EmailJS (si está configurado)
+        if (EMAILJS_PUBLIC_KEY !== "TU_PUBLIC_KEY") {
+          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            to_email: userData.email,
+            to_name: txt_user,
+            reset_code: codigo
+          });
+          msg.style.color = "#10b981";
+          msg.textContent = `¡Código enviado a ${userData.email}!`;
+        } else {
+          // Modo demostración si aún no cargaste las claves
+          alert(`[MODO PRUEBA] Tu código de recuperación es: ${codigo}`);
+          msg.style.color = "#10b981";
+          msg.textContent = `Código generado (Modo Prueba: ${codigo})`;
+        }
+
+        document.getElementById("forgot-step-1").style.display = "none";
+        document.getElementById("forgot-step-2").style.display = "block";
+
+      } catch (err) {
+        msg.style.color = "#ef4444";
+        msg.textContent = "Error al procesar la solicitud.";
+      }
+    }
+
+    async function cambiarPasswordConCodigo() {
+      const codigoIngresado = document.getElementById("forgot-code").value.trim();
+      const nuevaPass = document.getElementById("forgot-new-pass").value;
+      const msg = document.getElementById("auth-msg");
+
+      if (!nuevaPass || nuevaPass.length < 4) {
+        msg.style.color = "#ef4444";
+        msg.textContent = "La contraseña debe tener al menos 4 caracteres.";
+        return;
+      }
+
+      if (!resetTempData || Date.now() > resetTempData.expira) {
+        msg.style.color = "#ef4444";
+        msg.textContent = "El código ha expirado. Solicita uno nuevo.";
+        return;
+      }
+
+      if (codigoIngresado !== resetTempData.codigo) {
+        msg.style.color = "#ef4444";
+        msg.textContent = "Código incorrecto. Revisa tu correo.";
+        return;
+      }
+
+      try {
+        // Actualizar en /usernames/{user_clean}/pass
+        await db.ref('usernames/' + resetTempData.user_clean + '/pass').set(nuevaPass);
+        // Limpiar código
+        await db.ref('reset_passwords/' + resetTempData.user_clean).remove();
+
+        alert("¡Contraseña restablecida con éxito! Ya puedes iniciar sesión.");
+        resetTempData = null;
+        switchTab('login');
+      } catch (err) {
+        msg.style.color = "#ef4444";
+        msg.textContent = "Error al actualizar la contraseña.";
       }
     }
 
@@ -851,7 +1039,7 @@
       });
     }
 
-    // --- AMIGOS (CON CARGA DE AVATAR EN VIVO) ---
+    // --- AMIGOS ---
     async function enviarSolicitudAmigo(targetUID_direct = null) {
       const targetUID = targetUID_direct || document.getElementById("input-add-friend").value.trim();
       if (!targetUID || targetUID === activeUID) { alert("No puedes enviarte una solicitud a ti mismo."); return; }
@@ -1010,7 +1198,6 @@
     }
     function cerrarPerfilAmigo() { document.getElementById("friend-profile-modal").style.display = "none"; }
 
-    // --- ACCIONES MODERACIÓN FIREBASE ---
     async function toggleBanUsuario(uid, banear) {
       if (!confirm(banear ? "¿Seguro que deseas bloquear permanentemente a este usuario?" : "¿Desbloquear cuenta?")) return;
       await db.ref(`users/${uid}/baneado`).set(banear);
@@ -1133,7 +1320,6 @@
 
       if (destUID === activeUID) { alert("No puedes enviarte correos a ti mismo."); return; }
 
-      // VALIDACIÓN: SOLO AMIGOS
       const sonAmigos = currentUserData?.amigos && !!currentUserData.amigos[destUID];
       if (!sonAmigos) {
         alert("⛔ Solo puedes enviar correos a jugadores que estén en tu lista de amigos mutua.");
@@ -1215,7 +1401,6 @@
         const commentsKeys = Object.keys(comments);
         const commentsCount = commentsKeys.length;
 
-        // Renderizar lista de comentarios
         let commentsHTML = "";
         commentsKeys.forEach(cKey => {
           const c = comments[cKey];
