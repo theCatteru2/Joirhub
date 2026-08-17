@@ -16,429 +16,99 @@
 
   <style>
     :root {
-      --bg-body: #f4f6fb;
+      --bg-body: #f1f5f9;
       --card-bg: #ffffff;
       --card-border: #e2e8f0;
       --primary: #6366f1;
       --primary-hover: #4f46e5;
       --primary-light: #eef2ff;
-      --text-dark: #1e293b;
+      --text-dark: #0f172a;
       --text-muted: #64748b;
       --gold: #f59e0b;
       --pink: #ec4899;
       --radius: 16px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg-body); color: var(--text-dark); height: 100vh; overflow: hidden; display: flex; }
 
-    body {
-      background-color: var(--bg-body);
-      color: var(--text-dark);
-      min-height: 100vh;
-    }
+    #app-layout { display: none; width: 100%; height: 100%; }
 
-    /* HEADER */
-    .hoyobar {
-      background: #ffffff;
-      border-bottom: 1px solid var(--card-border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-    }
+    /* SIDEBAR */
+    .sidebar { width: 260px; background: white; border-right: 1px solid var(--card-border); display: flex; flex-direction: column; z-index: 100; }
+    .brand { padding: 24px; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #6366f1, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; border-bottom: 1px solid var(--card-border); }
+    .nav-menu { padding: 20px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 12px; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .nav-item:hover { background: #f8fafc; color: var(--text-dark); }
+    .nav-item.active { background: var(--primary-light); color: var(--primary); }
+    .nav-item .icon { font-size: 1.3rem; }
 
-    .hoyobar-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    /* CONTENT WRAPPER */
+    .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-body); }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.25rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #6366f1, #ec4899);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+    /* TOPBAR */
+    .topbar { height: 70px; background: white; border-bottom: 1px solid var(--card-border); display: flex; justify-content: flex-end; align-items: center; padding: 0 30px; gap: 20px; }
+    .inbox-btn { position: relative; background: #f1f5f9; border: none; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+    .inbox-btn:hover { background: #e2e8f0; }
+    .badge-inbox { position: absolute; top: -2px; right: -4px; background: #ef4444; color: white; font-size: 0.65rem; font-weight: 800; padding: 3px 6px; border-radius: 10px; border: 2px solid white; display: none; }
+    .user-menu-btn { display: flex; align-items: center; gap: 10px; background: transparent; border: none; cursor: pointer; }
+    .user-avatar-top { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 800; overflow: hidden; }
+    .user-avatar-top img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* AUTH */
-    #auth-view {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: calc(100vh - 70px);
-      padding: 20px;
-    }
+    /* MAIN CONTENT AREA */
+    .content-area { flex: 1; overflow-y: auto; padding: 30px; }
+    .view-section { display: none; max-width: 1000px; margin: 0 auto; animation: fadeIn 0.3s ease; }
+    .view-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .auth-box {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 36px 32px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
-      text-align: center;
-    }
+    /* PANTALLA LOGIN */
+    #auth-view { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; padding: 20px; background: var(--bg-body); }
+    .auth-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 24px; padding: 36px 32px; width: 100%; max-width: 420px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); text-align: center; }
+    .auth-tabs { display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; margin: 20px 0; }
+    .auth-tabs button { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 9px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+    .auth-tabs button.active { background: #ffffff; color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .input-box { text-align: left; margin-bottom: 16px; }
+    .input-box label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; display: block; }
+    .input-box input, .input-box textarea, .input-box select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--card-border); border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s; }
+    .input-box input:focus, .input-box textarea:focus, .input-box select:focus { border-color: var(--primary); }
+    .btn-hoyo { width: 100%; padding: 14px; border: none; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; font-weight: 700; border-radius: 12px; cursor: pointer; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25); transition: transform 0.2s; }
+    .btn-hoyo:hover { transform: translateY(-2px); }
 
-    .auth-tabs {
-      display: flex;
-      background: #f1f5f9;
-      padding: 4px;
-      border-radius: 12px;
-      margin: 20px 0;
-    }
-
-    .auth-tabs button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      background: transparent;
-      border-radius: 9px;
-      font-weight: 700;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .auth-tabs button.active {
-      background: #ffffff;
-      color: var(--primary);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .input-box {
-      text-align: left;
-      margin-bottom: 16px;
-    }
-
-    .input-box label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    .input-box input, .input-box textarea {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid var(--card-border);
-      border-radius: 12px;
-      font-size: 0.95rem;
-      outline: none;
-      transition: 0.2s;
-    }
-
-    .input-box input:focus, .input-box textarea:focus {
-      border-color: var(--primary);
-    }
-
-    .btn-hoyo {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: white;
-      font-weight: 700;
-      border-radius: 12px;
-      cursor: pointer;
-      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25);
-      transition: transform 0.2s;
-    }
-
-    .btn-hoyo:hover {
-      transform: translateY(-2px);
-    }
-
-    /* DASHBOARD */
-    #dashboard-view {
-      display: none;
-      max-width: 1100px;
-      margin: 24px auto;
-      padding: 0 20px 60px;
-      flex-direction: column;
-      gap: 24px;
-    }
+    /* COMPONENTES GLOBALES */
+    .card-block { background: white; border: 1px solid var(--card-border); border-radius: var(--radius); padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 20px; }
+    .btn-sm { padding: 8px 16px; font-size: 0.85rem; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; }
+    .btn-sm-primary { background: var(--primary); color: white; }
+    .btn-sm-secondary { background: #f1f5f9; color: var(--text-dark); border: 1px solid #cbd5e1; }
+    .btn-sm-danger { background: #fee2e2; color: #ef4444; }
+    .btn-sm-success { background: #dcfce7; color: #15803d; }
+    .sub-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; flex-wrap:wrap; }
+    .btn-subtab { padding: 6px 14px; border: none; background: transparent; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+    .btn-subtab.active { background: var(--primary-light); color: var(--primary); }
 
     /* HERO PERFIL */
-    .profile-hero {
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
-      border-radius: 24px;
-      padding: 28px;
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 20px;
-      box-shadow: 0 15px 30px rgba(99, 102, 241, 0.2);
-    }
+    .profile-hero { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%); border-radius: 24px; padding: 30px; color: white; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 15px 30px rgba(99, 102, 241, 0.2); margin-bottom: 24px; }
+    .avatar-wrapper { position: relative; cursor: pointer; }
+    .avatar-wrapper:hover::after { content: '📷'; position: absolute; inset: 0; background: rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; }
+    .hoyo-avatar { width: 90px; height: 90px; border-radius: 50%; background: #ffffff; color: #6366f1; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; border: 4px solid rgba(255, 255, 255, 0.5); object-fit: cover; overflow: hidden; }
+    .hoyo-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .level-badge { position: absolute; bottom: -4px; right: -4px; background: #f59e0b; color: #fff; font-size: 0.8rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; border: 2px solid white; }
+    .wallet-pill { background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(12px); padding: 10px 16px; border-radius: 14px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255, 255, 255, 0.25); }
 
-    .profile-info {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
+    /* LISTAS */
+    .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 12px; border: 1px solid var(--card-border); background: #fafafa; margin-bottom: 10px; transition: all 0.2s; }
+    .list-item:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .list-item.unread { background: #ffffff; border-left: 4px solid var(--primary); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08); }
+    .user-avatar-mini { width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: 800; overflow: hidden; flex-shrink: 0; }
+    .user-avatar-mini img { width: 100%; height: 100%; object-fit: cover; }
 
-    .avatar-wrapper {
-      position: relative;
-      cursor: pointer;
-    }
-
-    .avatar-wrapper:hover::after {
-      content: '📷 Cambiar';
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .hoyo-avatar {
-      width: 84px;
-      height: 84px;
-      border-radius: 50%;
-      background: #ffffff;
-      color: #6366f1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.2rem;
-      font-weight: 800;
-      border: 4px solid rgba(255, 255, 255, 0.5);
-      object-fit: cover;
-      overflow: hidden;
-    }
-
-    .hoyo-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .level-badge {
-      position: absolute;
-      bottom: -4px;
-      right: -4px;
-      background: #f59e0b;
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 2px 8px;
-      border-radius: 10px;
-      border: 2px solid white;
-    }
-
-    .profile-meta h2 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      margin-bottom: 4px;
-    }
-
-    .uid-tag {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      backdrop-filter: blur(8px);
-      cursor: pointer;
-    }
-
-    .profile-wallet {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .wallet-pill {
-      background: rgba(255, 255, 255, 0.18);
-      backdrop-filter: blur(12px);
-      padding: 10px 16px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-    }
-
-    .wallet-pill .val {
-      font-size: 1.1rem;
-      font-weight: 800;
-    }
-
-    /* PESTAÑAS HOYOLAB */
-    .hoyo-nav {
-      display: flex;
-      gap: 8px;
-      border-bottom: 2px solid #e2e8f0;
-      padding-bottom: 8px;
-      overflow-x: auto;
-    }
-
-    .hoyo-nav-item {
-      padding: 8px 16px;
-      font-weight: 700;
-      color: var(--text-muted);
-      cursor: pointer;
-      border-radius: 10px;
-      transition: 0.2s;
-      white-space: nowrap;
-      position: relative;
-    }
-
-    .hoyo-nav-item.active {
-      color: var(--primary);
-      background: var(--primary-light);
-    }
-
-    .nav-badge {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      background: #ef4444;
-      color: white;
-      font-size: 0.65rem;
-      padding: 2px 5px;
-      border-radius: 10px;
-      font-weight: 800;
-    }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .card-block {
-      background: white;
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 22px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-    }
-
-    /* MODALES */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(4px);
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: 20px;
-      max-width: 480px;
-      width: 100%;
-      padding: 24px;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .crop-container {
-      width: 100%;
-      height: 280px;
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      margin: 16px 0;
-    }
-
-    /* AMIGOS & BUZÓN */
-    .inbox-item, .friend-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid var(--card-border);
-      background: #fafafa;
-      margin-bottom: 10px;
-      transition: all 0.2s;
-    }
-
-    .friend-card:hover {
-      background: #f8fafc;
-      border-color: #cbd5e1;
-    }
-
-    .user-avatar-mini {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      background: #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    .user-avatar-mini img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* LOGROS */
-    .ach-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 14px;
-    }
-
-    .ach-item {
-      background: white;
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 16px;
-      display: flex;
-      gap: 14px;
-    }
-
-    .ach-item.unlocked {
-      border-color: #fbbf24;
-      background: linear-gradient(180deg, #ffffff 0%, #fffdf5 100%);
-    }
-
-    .ach-item.locked { opacity: 0.65; }
-
-    .ach-icon-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: #f1f5f9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      flex-shrink: 0;
-    }
+    /* LOGROS COMPLETOS (35 LOGROS) */
+    .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+    .ach-item { background: white; border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s; }
+    .ach-item.unlocked { border-color: #fbbf24; background: linear-gradient(180deg, #ffffff 0%, #fffdf5 100%); }
+    .ach-item.locked { opacity: 0.65; filter: grayscale(0.2); }
+    .ach-header { display: flex; gap: 14px; }
+    .ach-icon-box { width: 48px; height: 48px; border-radius: 12px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
     .ach-item.unlocked .ach-icon-box { background: #fef3c7; }
-
     .ach-body { flex: 1; }
     .ach-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .badge-rarity { font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; }
@@ -446,219 +116,278 @@
     .badge-raro { background: #dbeafe; color: #1d4ed8; }
     .badge-muy_raro { background: #f3e8ff; color: #7e22ce; }
     .badge-inaudito { background: #fef08a; color: #a16207; }
-    .ach-progress-bar { height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 6px; }
-    .ach-progress-fill { height: 100%; background: #10b981; }
+    .ach-progress-bar { width: 100%; height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+    .ach-progress-fill { height: 100%; background: #10b981; transition: width 0.4s ease; }
+    .ach-footer { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; }
 
-    .btn-sm {
-      padding: 6px 14px;
-      font-size: 0.8rem;
-      border-radius: 8px;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      transition: 0.2s;
+    /* FORO POSTS */
+    .post-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: 12px; margin: 12px 0; border: 1px solid var(--card-border); }
+    .warning-box { background: #fff1f2; border: 1px solid #fecdd3; color: #e11d48; padding: 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+    /* MODALES */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .modal-content { background: white; border-radius: 20px; max-width: 540px; width: 100%; padding: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .crop-container { width: 100%; height: 280px; background: #000; border-radius: 12px; overflow: hidden; margin: 16px 0; }
+
+    @media (max-width: 768px) {
+      #app-layout { flex-direction: column; }
+      .sidebar { width: 100%; height: 65px; flex-direction: row; order: 3; border-right: none; border-top: 1px solid var(--card-border); padding: 0; }
+      .brand { display: none; }
+      .nav-menu { flex-direction: row; justify-content: space-around; padding: 0; align-items: center; }
+      .nav-item { flex-direction: column; gap: 4px; padding: 8px; border-radius: 8px; font-size: 0.7rem; }
+      .main-wrapper { order: 1; flex: 1; }
+      .topbar { padding: 0 16px; }
+      .content-area { padding: 16px; }
     }
-    .btn-sm-primary { background: var(--primary); color: white; }
-    .btn-sm-secondary { background: #e2e8f0; color: var(--text-dark); }
-    .btn-sm-danger { background: #fee2e2; color: #ef4444; }
-    .btn-sm-success { background: #dcfce7; color: #15803d; }
   </style>
 </head>
 <body>
 
-  <header class="hoyobar">
-    <div class="hoyobar-inner">
-      <div class="brand"><span>🌟</span> JopJoir Hub</div>
-      <div id="nav-user-actions" style="display:none;">
-        <button class="btn-sm btn-sm-danger" onclick="logout()">Cerrar Sesión</button>
-      </div>
-    </div>
-  </header>
-
   <div id="auth-view">
     <div class="auth-box">
-      <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:6px;">JopJoir Community</h2>
-      <p style="color:var(--text-muted); font-size:0.9rem;">Accede a tu cuenta de juego para sincronizar amigos y correos</p>
-
+      <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:6px;">JopJoir Hub</h2>
+      <p style="color:var(--text-muted); font-size:0.9rem;">Accede a tu cuenta de juego para sincronizar tu perfil social</p>
       <div class="auth-tabs">
         <button id="tab-login" class="active" onclick="switchTab('login')">Ingresar</button>
         <button id="tab-register" onclick="switchTab('register')">Registrarse</button>
       </div>
-
       <form id="auth-form" onsubmit="handleAuth(event)">
-        <div class="input-box">
-          <label>Nombre de Usuario</label>
-          <input type="text" id="auth-user" required placeholder="Tu nombre en el juego">
-        </div>
-
-        <div class="input-box" id="group-email" style="display:none;">
-          <label>Correo Electrónico (Opcional)</label>
-          <input type="email" id="auth-email" placeholder="correo@ejemplo.com">
-        </div>
-
-        <div class="input-box">
-          <label>Contraseña</label>
-          <input type="password" id="auth-pass" required placeholder="••••••••">
-        </div>
-
+        <div class="input-box"><label>Nombre de Usuario</label><input type="text" id="auth-user" required placeholder="Tu nombre en el juego"></div>
+        <div class="input-box" id="group-email" style="display:none;"><label>Correo Electrónico</label><input type="email" id="auth-email" placeholder="correo@ejemplo.com"></div>
+        <div class="input-box"><label>Contraseña</label><input type="password" id="auth-pass" required placeholder="••••••••"></div>
         <button type="submit" class="btn-hoyo" id="btn-submit">Iniciar Sesión</button>
       </form>
       <div id="auth-msg" style="margin-top:14px; font-size:0.85rem; font-weight:700; min-height:20px;"></div>
     </div>
   </div>
 
-  <main id="dashboard-view">
+  <div id="app-layout">
     
-    <div class="profile-hero">
-      <div class="profile-info">
-        <div class="avatar-wrapper" onclick="abrirSelectorAvatar()" title="Haz clic para recortar foto">
-          <div class="hoyo-avatar" id="disp-avatar">J</div>
-          <div class="level-badge" id="disp-level">Lv. 1</div>
-        </div>
-        <input type="file" id="file-avatar-input" accept="image/*" style="display:none;" onchange="imagenSeleccionada(event)">
+    <aside class="sidebar">
+      <div class="brand"><span>🎮</span> JopJoir</div>
+      <nav class="nav-menu">
+        <div class="nav-item active" onclick="navigate('foro', this)"><span class="icon">💬</span><span class="label">Plaza Joir</span></div>
+        <div class="nav-item" onclick="navigate('ranking', this)"><span class="icon">🏆</span><span class="label">Ranking</span></div>
+        <div class="nav-item" onclick="navigate('herramientas', this)"><span class="icon">🎁</span><span class="label">Check-in</span></div>
+        <div class="nav-item" onclick="navigate('perfil', this)"><span class="icon">👤</span><span class="label">Mi Perfil</span></div>
+      </nav>
+    </aside>
 
-        <div class="profile-meta">
-          <h2 id="disp-username">Joircito</h2>
-          <span class="uid-tag" id="disp-uid" onclick="copiarUID()" title="Copiar UID">UID: usr_000000 📋</span>
+    <div class="main-wrapper">
+      <header class="topbar">
+        <button class="inbox-btn" onclick="navigate('buzon')" title="Buzón de Correos">
+          📬<span class="badge-inbox" id="badge-top-inbox">0</span>
+        </button>
+        <div class="user-menu-btn" onclick="navigate('perfil')">
+          <div class="user-avatar-top" id="top-avatar">J</div>
+          <span style="font-weight:700; display:none;" id="top-username">Joircito</span>
         </div>
-      </div>
+        <button class="btn-sm btn-sm-danger" onclick="logout()" style="margin-left:10px;">Salir</button>
+      </header>
 
-      <div class="profile-wallet">
-        <div class="wallet-pill">
-          <span>🌸</span>
-          <div>
-            <div style="font-size:0.7rem; text-transform:uppercase; opacity:0.8;">Enjoirs</div>
-            <div class="val" id="cnt-enjoirs">0</div>
+      <main class="content-area">
+
+        <section id="view-foro" class="view-section active">
+          <div class="card-block" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h3 style="font-size:1.4rem; font-weight:800;">Plaza de la Comunidad</h3>
+              <p style="color:var(--text-muted); font-size:0.9rem;">Comparte tácticas, fanart y clips de JopJoir.</p>
+            </div>
+            <button class="btn-sm btn-sm-primary" onclick="abrirModalCrearPost()">+ Publicar</button>
           </div>
-        </div>
-        <div class="wallet-pill">
-          <span>🍀</span>
-          <div>
-            <div style="font-size:0.7rem; text-transform:uppercase; opacity:0.8;">Dulucks</div>
-            <div class="val" id="cnt-dulucks">0</div>
+          <div id="forum-posts-container"></div>
+        </section>
+
+        <section id="view-ranking" class="view-section">
+          <div class="card-block">
+            <h3 style="font-size:1.4rem; font-weight:800; margin-bottom:6px;">🏆 Taberna de Campeones</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">Clasificación de prestigio basada en tu mejor racha de victorias y logros completados.</p>
+            <div id="ranking-list-container"><p style="color:var(--text-muted); font-size:0.9rem;">Cargando tabla de líderes...</p></div>
           </div>
-        </div>
-        <div class="wallet-pill">
-          <span>🎟️</span>
-          <div>
-            <div style="font-size:0.7rem; text-transform:uppercase; opacity:0.8;">Tickets</div>
-            <div class="val" id="cnt-tickets">0</div>
+        </section>
+
+        <section id="view-herramientas" class="view-section">
+          <div class="card-block" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h3 style="font-size:1.4rem; font-weight:800;">Recompensa Diaria</h3>
+              <p style="color:var(--text-muted); font-size:0.9rem;">Reclama +50 Enjoirs cada día que inicies sesión en la web.</p>
+              <div id="checkin-msg" style="font-size:0.9rem; font-weight:700; margin-top:10px;"></div>
+            </div>
+            <button class="btn-hoyo" style="width:auto; padding:12px 30px;" onclick="reclamarCheckin()">Reclamar Hoy</button>
           </div>
-        </div>
+        </section>
+
+        <section id="view-perfil" class="view-section">
+          <div class="profile-hero">
+            <div class="profile-info">
+              <div class="avatar-wrapper" onclick="abrirSelectorAvatar()" title="Cambiar foto">
+                <div class="hoyo-avatar" id="disp-avatar">J</div>
+                <div class="level-badge" id="disp-level">Lv. 1</div>
+              </div>
+              <input type="file" id="file-avatar-input" accept="image/*" style="display:none;" onchange="imagenSeleccionada(event)">
+              <div style="margin-left:10px;">
+                <h2 id="disp-username" style="font-size:1.8rem; font-weight:800; margin-bottom:4px;">Joircito</h2>
+                <span class="uid-tag" id="disp-uid" onclick="copiarUID()" title="Copiar UID">UID: usr_000000 📋</span>
+              </div>
+            </div>
+            <div class="profile-wallet">
+              <div class="wallet-pill"><span>🌸</span><div><div style="font-size:0.7rem; opacity:0.8;">Enjoirs</div><div class="val" id="cnt-enjoirs">0</div></div></div>
+              <div class="wallet-pill"><span>🍀</span><div><div style="font-size:0.7rem; opacity:0.8;">Dulucks</div><div class="val" id="cnt-dulucks">0</div></div></div>
+              <div class="wallet-pill"><span>🎟️</span><div><div style="font-size:0.7rem; opacity:0.8;">Tickets</div><div class="val" id="cnt-tickets">0</div></div></div>
+            </div>
+          </div>
+
+          <div class="sub-tabs">
+            <button class="btn-subtab active" onclick="switchPerfilTab('logros', this)">🏅 Mis Logros</button>
+            <button class="btn-subtab" onclick="switchPerfilTab('amigos', this)">👥 Lista de Amigos</button>
+          </div>
+
+          <div id="sub-logros" style="display:block;">
+            <div class="card-block" style="padding:16px; margin-bottom:16px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div class="filter-pills sub-tabs" style="margin-bottom:0; border:none; padding:0;">
+                  <button class="btn-subtab active" onclick="filtrarLogros('todos', this)">Todos</button>
+                  <button class="btn-subtab" onclick="filtrarLogros('comun', this)">Común</button>
+                  <button class="btn-subtab" onclick="filtrarLogros('raro', this)">Raro</button>
+                  <button class="btn-subtab" onclick="filtrarLogros('muy_raro', this)">Muy Raro</button>
+                  <button class="btn-subtab" onclick="filtrarLogros('inaudito', this)">Inaudito</button>
+                </div>
+                <span id="disp-ach-count" style="font-weight:800; color:var(--primary); background:var(--primary-light); padding:6px 12px; border-radius:10px;">0 / 0 Desbloqueados</span>
+              </div>
+            </div>
+            <div class="ach-grid" id="achievements-container"></div>
+          </div>
+
+          <div id="sub-amigos" style="display:none;">
+            <div class="card-block" style="padding:16px;">
+              <h4 style="font-size:1rem; font-weight:800; margin-bottom:10px;">🔍 Añadir Amigo por UID</h4>
+              <div style="display:flex; gap:10px;">
+                <input type="text" id="input-add-friend" placeholder="Ej: usr_2026..." style="flex:1; padding:10px; border:1px solid var(--card-border); border-radius:10px; outline:none;">
+                <button class="btn-sm btn-sm-primary" onclick="enviarSolicitudAmigo()">Enviar Solicitud</button>
+              </div>
+            </div>
+            <div id="friends-list-container"></div>
+          </div>
+        </section>
+
+        <section id="view-buzon" class="view-section">
+          <div class="card-block" style="margin-bottom:20px;">
+            <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:14px;">✉️ Solicitudes Pendientes</h3>
+            <div id="solicitudes-container"><p style="color:var(--text-muted); font-size:0.9rem;">No tienes solicitudes.</p></div>
+          </div>
+          <div class="card-block">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div class="sub-tabs" style="margin-bottom:0; border:none; padding:0;">
+                <button class="btn-subtab active" id="btn-sub-inbox" onclick="cambiarSubBuzon('recibidos')">📥 Recibidos</button>
+                <button class="btn-subtab" id="btn-sub-sent" onclick="cambiarSubBuzon('enviados')">📤 Enviados</button>
+              </div>
+              <button class="btn-sm btn-sm-primary" onclick="abrirModalRedactar()">Redactar</button>
+            </div>
+            <div id="mensajes-container"><p style="color:var(--text-muted); font-size:0.9rem;">Buzón vacío.</p></div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <div id="read-mail-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+        <h3 id="rm-asunto" style="font-size:1.2rem; font-weight:800; color:var(--primary);">Asunto</h3>
+        <button class="btn-sm btn-sm-danger" onclick="cerrarLectorCorreo()" style="border-radius:50%; width:28px; height:28px; padding:0;">✕</button>
+      </div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:16px; border-bottom:1px solid var(--card-border); padding-bottom:10px;">
+        <div id="rm-remitente">De: ...</div><div id="rm-fecha">Fecha: ...</div>
+      </div>
+      <div id="rm-cuerpo" style="font-size:0.95rem; line-height:1.5; color:var(--text-dark); margin-bottom:20px; white-space:pre-wrap;"></div>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn-sm btn-sm-danger" id="rm-btn-borrar">Eliminar</button>
+        <button class="btn-sm btn-sm-primary" id="rm-btn-responder">Responder</button>
       </div>
     </div>
+  </div>
 
-    <nav class="hoyo-nav">
-      <div class="hoyo-nav-item active" onclick="switchDashboardTab('logros', this)">🏅 Logros</div>
-      <div class="hoyo-nav-item" onclick="switchDashboardTab('amigos', this)">👥 Amigos</div>
-      <div class="hoyo-nav-item" onclick="switchDashboardTab('buzon', this)">
-        📬 Bandeja de Entrada <span id="badge-inbox" class="nav-badge" style="display:none;">0</span>
-      </div>
-      <div class="hoyo-nav-item" onclick="switchDashboardTab('checkin', this)">📅 Check-in</div>
-    </nav>
-
-    <div id="tab-logros-view" class="tab-content active">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
-        <h3 style="font-size:1.2rem; font-weight:800;">Logros Desbloqueados</h3>
-        <span id="disp-ach-count" style="font-weight:800; color:var(--primary);">0 / 0</span>
-      </div>
-      <div class="ach-grid" id="achievements-container"></div>
+  <div id="mail-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:14px;">✉️ Redactar Correo</h3>
+      <form onsubmit="enviarMensaje(event)">
+        <div class="input-box"><label>UID Destinatario</label><input type="text" id="mail-dest-uid" required></div>
+        <div class="input-box"><label>Asunto</label><input type="text" id="mail-asunto" required></div>
+        <div class="input-box"><label>Mensaje</label><textarea id="mail-cuerpo" rows="4" required></textarea></div>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn-sm btn-sm-danger" onclick="cerrarModalRedactar()">Cancelar</button>
+          <button type="submit" class="btn-sm btn-sm-primary">Enviar</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <div id="tab-amigos-view" class="tab-content">
-      <div class="card-block" style="margin-bottom:20px;">
-        <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:12px;">🔍 Añadir Amigo por ID</h3>
-        <div style="display:flex; gap:10px;">
-          <input type="text" id="input-add-friend" placeholder="Ingresa el UID (Ej: usr_20260817...)" style="flex:1; padding:10px 14px; border:1.5px solid var(--card-border); border-radius:10px; outline:none;">
-          <button class="btn-sm btn-sm-primary" style="padding:10px 20px;" onclick="enviarSolicitudAmigo()">Enviar Solicitud</button>
-        </div>
-        <div id="friend-search-msg" style="font-size:0.85rem; font-weight:700; margin-top:8px;"></div>
+  <div id="create-post-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:14px;">📝 Nueva Publicación en Plaza Joir</h3>
+      
+      <div class="warning-box">
+        ⚠️ <span><b>Normas de la Comunidad:</b> Queda prohibido subir imágenes o textos ofensivos, explícitos o que infrinjan los términos. Tu cuenta será <u>permanentemente bloqueada</u> sin previo aviso.</span>
       </div>
 
-      <div class="card-block">
-        <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:16px;">Lista de Amigos (<span id="cnt-friends">0</span>)</h3>
-        <div id="friends-list-container">
-          <p style="color:var(--text-muted); font-size:0.9rem;">No tienes amigos agregados aún. ¡Comparte tu UID!</p>
+      <form onsubmit="guardarPostForo(event)">
+        <div class="input-box">
+          <label>Categoría</label>
+          <select id="post-cat">
+            <option value="General">General</option>
+            <option value="Guías">Guías y Estrategias</option>
+            <option value="FanArt">FanArt / Creaciones</option>
+            <option value="Clips">Clips y Bugs</option>
+          </select>
         </div>
-      </div>
+        <div class="input-box"><label>Título</label><input type="text" id="post-title" required placeholder="Título descriptivo"></div>
+        <div class="input-box"><label>Contenido</label><textarea id="post-body" rows="4" required placeholder="Escribe tu mensaje..."></textarea></div>
+        
+        <div class="input-box">
+          <label>Adjuntar Imagen (Opcional)</label>
+          <input type="file" id="post-image-file" accept="image/*" onchange="previewPostImage(event)">
+          <img id="post-image-preview" class="post-img" style="display:none; max-height:180px; margin-top:8px;">
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+          <button type="button" class="btn-sm btn-sm-danger" onclick="cerrarModalCrearPost()">Cancelar</button>
+          <button type="submit" class="btn-sm btn-sm-primary" id="btn-submit-post">Publicar</button>
+        </div>
+      </form>
     </div>
-
-    <div id="tab-buzon-view" class="tab-content">
-      <div class="card-block" style="margin-bottom:20px;">
-        <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:14px;">✉️ Solicitudes de Amistad Pendientes</h3>
-        <div id="solicitudes-container">
-          <p style="color:var(--text-muted); font-size:0.9rem;">No tienes solicitudes pendientes.</p>
-        </div>
-      </div>
-
-      <div class="card-block">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <h3 style="font-size:1.1rem; font-weight:800;">📬 Correos y Mensajes</h3>
-          <button class="btn-sm btn-sm-primary" onclick="abrirModalMensaje()">Redactar Correo</button>
-        </div>
-        <div id="mensajes-container">
-          <p style="color:var(--text-muted); font-size:0.9rem;">Tu buzón está vacío.</p>
-        </div>
-      </div>
-    </div>
-
-    <div id="tab-checkin-view" class="tab-content">
-      <div class="card-block" style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <h3 style="font-size:1.2rem; font-weight:800;">Recompensa Diaria</h3>
-          <p style="color:var(--text-muted); font-size:0.9rem;">Reclama +50 Enjoirs cada día en la web.</p>
-        </div>
-        <button class="btn-hoyo" style="width:auto; padding:10px 24px;" onclick="reclamarCheckin()">Reclamar</button>
-      </div>
-      <div id="checkin-msg" style="font-size:0.9rem; font-weight:700; margin-top:10px;"></div>
-    </div>
-
-  </main>
+  </div>
 
   <div id="friend-profile-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 580px;">
-      
       <div style="background:linear-gradient(135deg, #6366f1, #8b5cf6); padding:20px; border-radius:16px; color:white; display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <div style="display:flex; align-items:center; gap:16px;">
-          <div class="user-avatar-mini" id="fp-avatar" style="width:64px; height:64px; font-size:1.8rem; background:white; color:#6366f1; border:3px solid rgba(255,255,255,0.6);">
-            ?
-          </div>
+          <div class="user-avatar-mini" id="fp-avatar" style="width:64px; height:64px; font-size:1.8rem; background:white; color:#6366f1; border:3px solid rgba(255,255,255,0.6);">?</div>
           <div>
             <h3 id="fp-username" style="font-size:1.3rem; font-weight:800; line-height:1.2;">Cargando...</h3>
             <div id="fp-uid" style="font-size:0.75rem; opacity:0.85;">UID: usr_...</div>
-            <div id="fp-level" style="font-size:0.8rem; font-weight:700; margin-top:3px; background:rgba(255,255,255,0.25); display:inline-block; padding:2px 8px; border-radius:6px;">Lv. 1</div>
+            <div id="fp-score" style="font-size:0.8rem; font-weight:700; margin-top:3px; background:rgba(255,255,255,0.25); display:inline-block; padding:2px 8px; border-radius:6px;">Prestigio: 0 pts</div>
           </div>
         </div>
         <button class="btn-sm btn-sm-danger" onclick="cerrarPerfilAmigo()" style="background:rgba(255,255,255,0.2); color:white; border:none; font-size:1rem; border-radius:50%; width:32px; height:32px; padding:0;">✕</button>
       </div>
 
       <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:18px;">
-        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;">
-          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">🌸 ENJOIRS</div>
-          <div id="fp-enjoirs" style="font-weight:800; font-size:1.1rem; color:#ec4899;">0</div>
-        </div>
-        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;">
-          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">🍀 DULUCKS</div>
-          <div id="fp-dulucks" style="font-weight:800; font-size:1.1rem; color:#8b5cf6;">0</div>
-        </div>
-        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;">
-          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">🔥 RACHA MÁX</div>
-          <div id="fp-racha" style="font-weight:800; font-size:1.1rem; color:#f59e0b;">0</div>
-        </div>
+        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;"><div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">NIVEL</div><div id="fp-level" style="font-weight:800; font-size:1.1rem; color:var(--text-dark);">1</div></div>
+        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;"><div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">🔥 RACHA MÁX</div><div id="fp-racha" style="font-weight:800; font-size:1.1rem; color:#f59e0b;">0</div></div>
+        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;"><div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">🏅 LOGROS</div><div id="fp-ach-count" style="font-weight:800; font-size:1.1rem; color:var(--primary);">0</div></div>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <h4 style="font-size:1rem; font-weight:800;">🏅 Logros Desbloqueados</h4>
-        <span id="fp-ach-count" style="font-size:0.8rem; font-weight:800; color:var(--primary);">0 / 0</span>
       </div>
 
-      <div id="fp-achievements-container" style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px; margin-bottom:16px;">
-        </div>
+      <div id="fp-achievements-container" style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:16px; padding-right:6px;"></div>
 
-      <div style="display:flex; justify-content:flex-end; gap:10px;">
-        <button class="btn-sm btn-sm-primary" id="fp-btn-mail" style="padding:10px 18px;">✉️ Enviar Correo</button>
+      <div style="display:flex; justify-content:flex-end; gap:10px;" id="fp-actions-container">
+        <button class="btn-sm btn-sm-success" id="fp-btn-add">➕ Añadir Amigo</button>
+        <button class="btn-sm btn-sm-primary" id="fp-btn-mail">✉️ Enviar Correo</button>
       </div>
-
     </div>
   </div>
 
@@ -666,11 +395,7 @@
     <div class="modal-content">
       <h3 style="font-size:1.2rem; font-weight:800;">Ajustar Foto de Perfil</h3>
       <p style="color:var(--text-muted); font-size:0.85rem;">Arrastra y acomoda la imagen en el círculo</p>
-      
-      <div class="crop-container">
-        <img id="crop-image" src="" alt="A recortar">
-      </div>
-
+      <div class="crop-container"><img id="crop-image" src="" alt="A recortar"></div>
       <div style="display:flex; justify-content:flex-end; gap:10px;">
         <button class="btn-sm btn-sm-danger" onclick="cerrarCropper()">Cancelar</button>
         <button class="btn-sm btn-sm-primary" onclick="guardarRecorteAvatar()">Guardar Foto</button>
@@ -678,64 +403,77 @@
     </div>
   </div>
 
-  <div id="mail-modal" class="modal-overlay">
-    <div class="modal-content">
-      <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:14px;">✉️ Enviar Correo a un Amigo</h3>
-      <form onsubmit="enviarMensaje(event)">
-        <div class="input-box">
-          <label>UID del Destinatario</label>
-          <input type="text" id="mail-dest-uid" required placeholder="usr_...">
-        </div>
-        <div class="input-box">
-          <label>Asunto</label>
-          <input type="text" id="mail-asunto" required placeholder="¡Vamos a jugar unas partidas!">
-        </div>
-        <div class="input-box">
-          <label>Mensaje</label>
-          <textarea id="mail-cuerpo" rows="4" required placeholder="Escribe tu mensaje..."></textarea>
-        </div>
-        <div style="display:flex; justify-content:flex-end; gap:10px;">
-          <button type="button" class="btn-sm btn-sm-danger" onclick="cerrarModalMensaje()">Cancelar</button>
-          <button type="submit" class="btn-sm btn-sm-primary">Enviar Correo</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <script>
     // --- 1. FIREBASE CONFIG ---
-    const firebaseConfig = {
-      databaseURL: "https://jopjoirdatabase-default-rtdb.firebaseio.com"
-    };
+    const firebaseConfig = { databaseURL: "https://jopjoirdatabase-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- 2. LISTA DE LOGROS GAMEMAKER ---
+    // --- 2. LISTA EXACTA DE LOS 35 LOGROS DE GAMEMAKER ---
     const LISTA_LOGROS = [
+      // --- HABILIDAD / COMBATE BÁSICO ---
       { id: "joircazador_aereo", titulo: "Joircazador Aéreo", desc: "Derrotar un enemigo estando en el aire", rareza: "comun", meta: 1 },
       { id: "suerte_de_joir", titulo: "Suerte de Joir", desc: "Recolectar un Duluck durante una partida", rareza: "muy_raro", meta: 1 },
-      { id: "cazador_joirs_1", titulo: "Cazador de Joirs I", desc: "Derrotar 10 enemigos en una partida", rareza: "comun", meta: 10 },
-      { id: "cazador_joirs_2", titulo: "Cazador de Joirs II", desc: "Derrotar 15 enemigos en una partida", rareza: "raro", meta: 15 },
-      { id: "cazador_joirs_3", titulo: "Cazador de Joirs III", desc: "Derrotar 25 enemigos en una partida", rareza: "muy_raro", meta: 25 },
-      { id: "cazador_joirs_4", titulo: "Cazador de Joirs IV", desc: "Derrotar 30 enemigos en una partida", rareza: "inaudito", meta: 30 },
-      { id: "campeon_invicto_1", titulo: "Campeón Joirinvicto I", desc: "Racha de 5 victorias", rareza: "comun", meta: 5 },
-      { id: "campeon_invicto_2", titulo: "Campeón Joirinvicto II", desc: "Racha de 10 victorias", rareza: "raro", meta: 10 },
-      { id: "campeon_invicto_3", titulo: "Campeón Joirinvicto III", desc: "Racha de 15 victorias", rareza: "muy_raro", meta: 15 },
+
+      // --- CAZADOR DE JOIRS ---
+      { id: "cazador_joirs_1", titulo: "Cazador de Joirs I", desc: "Derrotar 10 enemigos en una sola partida", rareza: "comun", meta: 10 },
+      { id: "cazador_joirs_2", titulo: "Cazador de Joirs II", desc: "Derrotar 15 enemigos en una sola partida", rareza: "raro", meta: 15 },
+      { id: "cazador_joirs_3", titulo: "Cazador de Joirs III", desc: "Derrotar 25 enemigos en una sola partida", rareza: "muy_raro", meta: 25 },
+      { id: "cazador_joirs_4", titulo: "Cazador de Joirs IV", desc: "Derrotar 30 enemigos en una sola partida", rareza: "inaudito", meta: 30 },
+
+      // --- CAMPEÓN JOIRINVICTO ---
+      { id: "joirinvicto_1", titulo: "Campeón Joirinvicto I", desc: "Tener una racha de 5 partidas", rareza: "comun", meta: 5 },
+      { id: "joirinvicto_2", titulo: "Campeón Joirinvicto II", desc: "Tener una racha de 10 partidas", rareza: "raro", meta: 10 },
+      { id: "joirinvicto_3", titulo: "Campeón Joirinvicto III", desc: "Tener una racha de 15 partidas", rareza: "muy_raro", meta: 15 },
+      { id: "joirinvicto_4", titulo: "Campeón Joirinvicto IV", desc: "Tener una racha de 20 partidas", rareza: "muy_raro", meta: 20 },
+      { id: "joirinvicto_5", titulo: "Campeón Joirinvicto V", desc: "Tener una racha de 50 partidas", rareza: "inaudito", meta: 50 },
+
+      // --- JOIR AL EXTREMO ---
       { id: "joir_extremo_1", titulo: "Joir al extremo I", desc: "Ganar 10 partidas de Extremo", rareza: "comun", meta: 10 },
       { id: "joir_extremo_2", titulo: "Joir al extremo II", desc: "Ganar 20 partidas de Extremo", rareza: "comun", meta: 20 },
-      { id: "alcancia_1", titulo: "Alcancía I", desc: "Ahorrar 500 Enjoirs", rareza: "comun", meta: 500 },
-      { id: "alcancia_2", titulo: "Alcancía II", desc: "Ahorrar 1000 Enjoirs", rareza: "comun", meta: 1000 }
+      { id: "joir_extremo_3", titulo: "Joir al extremo III", desc: "Ganar 50 partidas de Extremo", rareza: "raro", meta: 50 },
+      { id: "joir_extremo_4", titulo: "Joir al extremo IV", desc: "Ganar 100 partidas de Extremo", rareza: "muy_raro", meta: 100 },
+      { id: "joir_extremo_5", titulo: "Joir al extremo V", desc: "Ganar 500 partidas de Extremo", rareza: "inaudito", meta: 500 },
+
+      // --- ALCANCÍA ---
+      { id: "alcanzia_1", titulo: "Alcancía I", desc: "Ahorrar 500 Enjoirs", rareza: "comun", meta: 500 },
+      { id: "alcanzia_2", titulo: "Alcancía II", desc: "Ahorrar 1000 Enjoirs", rareza: "comun", meta: 1000 },
+      { id: "alcanzia_3", titulo: "Alcancía III", desc: "Ahorrar 2500 Enjoirs", rareza: "raro", meta: 2500 },
+      { id: "alcanzia_4", titulo: "Alcancía IV", desc: "Ahorrar 5000 Enjoirs", rareza: "muy_raro", meta: 5000 },
+      { id: "alcanzia_5", titulo: "Alcancía V", desc: "Ahorrar 10000 Enjoirs", rareza: "inaudito", meta: 10000 },
+
+      // --- TIENDA Y SKINS ---
+      { id: "tienda_skins_1", titulo: "Cúbreme de joirskins I", desc: "Compra una skin", rareza: "comun", meta: 1 },
+      { id: "tienda_skins_2", titulo: "Cúbreme de joirskins II", desc: "Compra 5 skins", rareza: "raro", meta: 5 },
+      { id: "tienda_skins_3", titulo: "Cúbreme de joirskins III", desc: "Compra 10 skins", rareza: "muy_raro", meta: 10 },
+      { id: "tienda_compulsiva", titulo: "Compra Joircompulsiva", desc: "Compra toda la tienda", rareza: "inaudito", meta: 1 },
+
+      // --- LOGROS SECRETOS / ESPECIALES / ENTORNO ---
+      { id: "secreto_osito_1", titulo: "Quién será ese Osito", desc: "Desbloquea el traje secreto del primer escenario", rareza: "muy_raro", meta: 1 },
+      { id: "secreto_osito_2", titulo: "El Oso GranOso", desc: "Desbloquea el traje secreto del primer escenario y gana la partida", rareza: "muy_raro", meta: 1 },
+      { id: "secreto_osito_3", titulo: "Nada puede atravesar su escudo", desc: "Desbloquea el traje secreto del primer escenario y gana la partida derrotando a 10 enemigos", rareza: "muy_raro", meta: 1 },
+
+      { id: "entre_cortes_victorias", titulo: "Entre cortes y victorias", desc: "Gana una partida donde hayas derrotado a 10 enemigos", rareza: "raro", meta: 10 },
+      { id: "entre_saltos_cortes_victorias", titulo: "Entre saltos, cortes y victorias", desc: "Gana una partida donde hayas derrotado a 10 enemigos en el aire", rareza: "muy_raro", meta: 10 },
+      { id: "entre_saltos_cortes_dinero", titulo: "Entre saltos, cortes, victorias y dinero", desc: "Gana una partida donde hayas derrotado a 10 enemigos en el aire y recolectado 30 Enjoirs", rareza: "muy_raro", meta: 1 },
+
+      { id: "me_invito_un_joir", titulo: "Me invitó un Joir", desc: "Gana una partida sin haber derrotado a ningún enemigo", rareza: "muy_raro", meta: 1 },
+      { id: "miedo_enfrentarme", titulo: "Tienen miedo de enfrentarme", desc: "Gana una partida donde el último enemigo sea derrotado por causas naturales", rareza: "raro", meta: 1 },
+      { id: "suerte_de_tu_lado", titulo: "La suerte está de tu lado", desc: "Pierde una partida tras ser aplastado por un meteorito cuando quedan 2 jugadores en pie", rareza: "raro", meta: 1 },
+      { id: "verlos_caer", titulo: "Déjalos vivos para verlos caer", desc: "Gana una partida donde el último enemigo sea aplastado por un meteorito", rareza: "muy_raro", meta: 1 }
     ];
 
     let currentMode = "login";
     let activeUID = null;
     let currentUserData = null;
     let cropper = null;
+    let subBuzonActual = "recibidos";
+    let filtroActual = "todos";
+    let postImageBase64 = "";
 
-    function cleanUsername(str) {
-      return str.toLowerCase().replace(/[^a-z0-9]/g, '');
-    }
+    function cleanUsername(str) { return str.toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
+    // --- NAVEGACIÓN ---
     function switchTab(mode) {
       currentMode = mode;
       document.getElementById("tab-login").classList.toggle("active", mode === "login");
@@ -745,14 +483,23 @@
       document.getElementById("auth-msg").textContent = "";
     }
 
-    function switchDashboardTab(tabName, btn) {
-      document.querySelectorAll('.hoyo-nav-item').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(`tab-${tabName}-view`).classList.add('active');
+    function navigate(viewId, btnEl = null) {
+      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+      document.getElementById(`view-${viewId}`).classList.add('active');
+      if (btnEl) { document.querySelectorAll('.sidebar .nav-item').forEach(b => b.classList.remove('active')); btnEl.classList.add('active'); } 
+      else { document.querySelectorAll('.sidebar .nav-item').forEach(b => b.classList.remove('active')); }
+      if (viewId === 'ranking') cargarRankingGlobal();
+      if (viewId === 'foro') escucharForo();
     }
 
-    // --- 3. AUTENTICACIÓN ---
+    function switchPerfilTab(tab, btn) {
+      document.getElementById("sub-logros").style.display = tab === 'logros' ? 'block' : 'none';
+      document.getElementById("sub-amigos").style.display = tab === 'amigos' ? 'block' : 'none';
+      document.querySelectorAll('#view-perfil > .sub-tabs .btn-subtab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    // --- AUTENTICACIÓN ---
     async function handleAuth(e) {
       e.preventDefault();
       const txt_user = document.getElementById("auth-user").value.trim();
@@ -761,515 +508,487 @@
       const msg = document.getElementById("auth-msg");
       const user_clean = cleanUsername(txt_user);
 
-      msg.style.color = "#f59e0b";
-      msg.textContent = "Conectando...";
+      msg.style.color = "#f59e0b"; msg.textContent = "Conectando...";
 
       if (currentMode === "login") {
         try {
-          const snapshot = await db.ref('usernames/' + user_clean).once('value');
-          const userData = snapshot.val();
-          if (userData && userData.pass === txt_pass) {
-            localStorage.setItem("jopjoir_uid", userData.uid);
-            localStorage.setItem("jopjoir_username", txt_user);
-            iniciarDashboard(userData.uid, txt_user);
-          } else {
-            msg.style.color = "#ef4444";
-            msg.textContent = userData ? "Contraseña incorrecta." : "El usuario no existe.";
-          }
-        } catch(e) {
-          msg.style.color = "#ef4444";
-          msg.textContent = "Error al conectar con la base de datos.";
-        }
+          const snap = await db.ref('usernames/' + user_clean).once('value');
+          const userData = snap.val();
+          if (userData && userData.pass === txt_pass) iniciarSesionExito(userData.uid, txt_user);
+          else { msg.style.color = "#ef4444"; msg.textContent = userData ? "Contraseña incorrecta." : "El usuario no existe."; }
+        } catch(err) { msg.style.color = "#ef4444"; msg.textContent = "Error de conexión."; }
       } else {
         try {
-          const snapshot = await db.ref('usernames/' + user_clean).once('value');
-          if (snapshot.exists()) {
-            msg.style.color = "#ef4444";
-            msg.textContent = "Ese nombre de usuario ya existe.";
-            return;
-          }
+          const snap = await db.ref('usernames/' + user_clean).once('value');
+          if (snap.exists()) { msg.style.color = "#ef4444"; msg.textContent = "Usuario en uso."; return; }
           const now = new Date();
           const uid = `usr_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}${Math.floor(100000 + Math.random() * 900000)}`;
 
           await db.ref('usernames/' + user_clean).set({ uid: uid, email: txt_email, pass: txt_pass });
-          await db.ref('users/' + uid).set({
-            info: { username: txt_user, email: txt_email, avatar: "" },
-            inventario: { enjoirs: 0, dulucks: 0, tickets: 0 },
-            stats: { nivel: 1 }
-          });
-
-          localStorage.setItem("jopjoir_uid", uid);
-          localStorage.setItem("jopjoir_username", txt_user);
-          iniciarDashboard(uid, txt_user);
-        } catch(e) {
-          msg.style.color = "#ef4444";
-          msg.textContent = "Error al registrar la cuenta.";
-        }
+          await db.ref('users/' + uid).set({ info: { username: txt_user, email: txt_email, avatar: "" }, inventario: { enjoirs: 0, dulucks: 0, tickets: 0 }, stats: { nivel: 1, racha_maxima: 0 } });
+          iniciarSesionExito(uid, txt_user);
+        } catch(err) { msg.style.color = "#ef4444"; msg.textContent = "Error al registrar."; }
       }
     }
 
-    // --- 4. PANEL PRINCIPAL ---
-    function iniciarDashboard(uid, username) {
+    function iniciarSesionExito(uid, username) {
+      localStorage.setItem("jopjoir_uid", uid); localStorage.setItem("jopjoir_username", username);
+      document.getElementById("auth-view").style.display = "none"; document.getElementById("app-layout").style.display = "flex";
       activeUID = uid;
-      document.getElementById("auth-view").style.display = "none";
-      document.getElementById("dashboard-view").style.display = "flex";
-      document.getElementById("nav-user-actions").style.display = "block";
-
-      document.getElementById("disp-username").textContent = username;
-      document.getElementById("disp-uid").textContent = `UID: ${uid} 📋`;
-
-      db.ref('users/' + uid).on('value', (snapshot) => {
-        currentUserData = snapshot.val() || {};
-
-        const uname = currentUserData.info?.username || username;
-        document.getElementById("disp-username").textContent = uname;
-        
-        const avatarEl = document.getElementById("disp-avatar");
-        if (currentUserData.info?.avatar) {
-          avatarEl.innerHTML = `<img src="${currentUserData.info.avatar}">`;
-        } else {
-          avatarEl.textContent = uname.charAt(0).toUpperCase();
-        }
-
-        document.getElementById("disp-level").textContent = `Lv. ${currentUserData.stats?.nivel ?? 1}`;
-        document.getElementById("cnt-enjoirs").textContent = (currentUserData.inventario?.enjoirs ?? 0).toLocaleString();
-        document.getElementById("cnt-dulucks").textContent = (currentUserData.inventario?.dulucks ?? 0).toLocaleString();
-        document.getElementById("cnt-tickets").textContent = (currentUserData.inventario?.tickets ?? 0).toLocaleString();
-
-        renderLogros();
-        renderAmigos(currentUserData.amigos || {});
-        renderBuzon(currentUserData.solicitudes || {}, currentUserData.buzon || {});
-      });
+      navigate('foro', document.querySelector('.nav-item'));
+      db.ref('users/' + uid).on('value', (snap) => { currentUserData = snap.val() || {}; actualizarUI(username); });
     }
 
-    function copiarUID() {
-      navigator.clipboard.writeText(activeUID);
-      alert("¡UID copiado al portapapeles!");
+    function actualizarUI(defaultUser) {
+      const uname = currentUserData.info?.username || defaultUser; const avatar = currentUserData.info?.avatar || "";
+      document.getElementById("top-username").textContent = uname;
+      document.getElementById("top-avatar").innerHTML = avatar ? `<img src="${avatar}">` : uname.charAt(0).toUpperCase();
+      document.getElementById("disp-username").textContent = uname;
+      document.getElementById("disp-uid").textContent = `UID: ${activeUID} 📋`;
+      document.getElementById("disp-avatar").innerHTML = avatar ? `<img src="${avatar}">` : uname.charAt(0).toUpperCase();
+      document.getElementById("disp-level").textContent = `Lv. ${currentUserData.stats?.nivel ?? 1}`;
+      document.getElementById("cnt-enjoirs").textContent = (currentUserData.inventario?.enjoirs ?? 0).toLocaleString();
+      document.getElementById("cnt-dulucks").textContent = (currentUserData.inventario?.dulucks ?? 0).toLocaleString();
+      document.getElementById("cnt-tickets").textContent = (currentUserData.inventario?.tickets ?? 0).toLocaleString();
+      renderLogros(); renderAmigos(currentUserData.amigos || {}); renderBuzon();
     }
 
-    // --- 5. RECORTADOR DE AVATAR (CROPPER.JS) ---
-    function abrirSelectorAvatar() {
-      document.getElementById("file-avatar-input").click();
-    }
+    function copiarUID() { navigator.clipboard.writeText(activeUID); alert("¡UID copiado al portapapeles!"); }
+    function logout() { localStorage.clear(); location.reload(); }
 
+    // --- CROPPER AVATAR ---
+    function abrirSelectorAvatar() { document.getElementById("file-avatar-input").click(); }
     function imagenSeleccionada(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
+      const file = event.target.files[0]; if (!file) return;
       const reader = new FileReader();
       reader.onload = (e) => {
-        const image = document.getElementById('crop-image');
-        image.src = e.target.result;
+        document.getElementById('crop-image').src = e.target.result;
         document.getElementById('crop-modal').style.display = 'flex';
-
         if (cropper) cropper.destroy();
-        cropper = new Cropper(image, {
-          aspectRatio: 1,
-          viewMode: 1,
-          dragMode: 'move',
-          autoCropArea: 0.9,
-          cropBoxResizable: false,
-          guides: false
-        });
+        cropper = new Cropper(document.getElementById('crop-image'), { aspectRatio: 1, viewMode: 1, dragMode: 'move', autoCropArea: 0.9, cropBoxResizable: false, guides: false });
       };
       reader.readAsDataURL(file);
     }
-
-    function cerrarCropper() {
-      document.getElementById('crop-modal').style.display = 'none';
-      if (cropper) cropper.destroy();
-      document.getElementById("file-avatar-input").value = "";
-    }
-
+    function cerrarCropper() { document.getElementById('crop-modal').style.display = 'none'; if(cropper) cropper.destroy(); document.getElementById("file-avatar-input").value = ""; }
     async function guardarRecorteAvatar() {
       if (!cropper || !activeUID) return;
-      const canvas = cropper.getCroppedCanvas({ width: 160, height: 160 });
-      const base64Avatar = canvas.toDataURL('image/jpeg', 0.85);
-
-      await db.ref('users/' + activeUID + '/info/avatar').set(base64Avatar);
+      const base64 = cropper.getCroppedCanvas({ width: 160, height: 160 }).toDataURL('image/jpeg', 0.85);
+      await db.ref('users/' + activeUID + '/info/avatar').set(base64);
       cerrarCropper();
     }
 
-    // --- 6. AMIGOS & VER PERFIL DE AMIGO ---
-    async function enviarSolicitudAmigo() {
-      const targetUID = document.getElementById("input-add-friend").value.trim();
-      const msg = document.getElementById("friend-search-msg");
+    // --- LOGROS COMPLETOS ---
+    function filtrarLogros(rareza, btn) {
+      filtroActual = rareza;
+      document.querySelectorAll('#sub-logros .filter-pills .btn-subtab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderLogros();
+    }
 
-      if (!targetUID || targetUID === activeUID) {
-        msg.style.color = "#ef4444";
-        msg.textContent = targetUID === activeUID ? "No puedes agregarte a ti mismo." : "Ingresa una ID válida.";
-        return;
-      }
+    function renderLogros() {
+      const container = document.getElementById("achievements-container");
+      container.innerHTML = ""; let completados = 0;
+      const userLogros = currentUserData?.logros || {};
 
-      msg.style.color = "#f59e0b";
-      msg.textContent = "Buscando usuario...";
+      LISTA_LOGROS.forEach(l => {
+        const item = userLogros[l.id];
+        let d = false;
+        if (typeof item === "object" && item !== null) d = !!(item.unlocked ?? item.desbloqueado);
+        else if (typeof item === "boolean") d = item;
+        else if (typeof item === "number") d = item >= l.meta;
+        if (d) completados++;
+      });
+      document.getElementById("disp-ach-count").textContent = `${completados} / ${LISTA_LOGROS.length} Desbloqueados`;
 
+      const filtrados = LISTA_LOGROS.filter(l => filtroActual === "todos" || l.rareza === filtroActual);
+      filtrados.forEach(l => {
+        const item = userLogros[l.id];
+        let desbloqueado = false; let valor = 0;
+        if (typeof item === "object" && item !== null) { desbloqueado = !!(item.unlocked ?? item.desbloqueado); valor = Number(item.val ?? item.valor ?? 0); }
+        else if (typeof item === "boolean") { desbloqueado = item; if (item) valor = l.meta; }
+        else if (typeof item === "number") { desbloqueado = item >= l.meta; valor = item; }
+
+        const pct = Math.min(100, Math.round((valor / l.meta) * 100));
+
+        container.innerHTML += `
+          <div class="ach-item ${desbloqueado ? 'unlocked' : 'locked'}">
+            <div class="ach-header">
+              <div class="ach-icon-box">${desbloqueado ? '🏆' : '🔒'}</div>
+              <div class="ach-body">
+                <div class="ach-title-row">
+                  <span style="font-weight:700; font-size:0.95rem;">${l.titulo}</span>
+                  <span class="badge-rarity badge-${l.rareza}">${l.rareza.replace('_', ' ')}</span>
+                </div>
+                <div style="font-size:0.82rem; color:var(--text-muted);">${l.desc}</div>
+              </div>
+            </div>
+            <div>
+              <div class="ach-progress-bar"><div class="ach-progress-fill" style="width: ${desbloqueado ? 100 : pct}%;"></div></div>
+              <div class="ach-footer">
+                <span>${desbloqueado ? 'Completado' : 'En progreso'}</span>
+                <span>${valor} / ${l.meta}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // --- RANKING GLOBAL UNIFICADO ---
+    async function cargarRankingGlobal() {
+      const container = document.getElementById("ranking-list-container");
+      container.innerHTML = "<p style='color:var(--text-muted);'>Cargando ranking de prestigio...</p>";
+
+      const snap = await db.ref('users').once('value');
+      const usersObj = snap.val() || {};
+      let lista = [];
+
+      Object.keys(usersObj).forEach(uid => {
+        const u = usersObj[uid];
+        let cantLogros = 0;
+        if (u.logros) Object.values(u.logros).forEach(logro => { if ((typeof logro === "object" && (logro.unlocked || logro.desbloqueado)) || (typeof logro === "boolean" && logro)) cantLogros++; });
+        
+        const racha = u.stats?.racha_maxima || 0;
+        const prestigio = (racha * 100) + (cantLogros * 250);
+
+        lista.push({ uid: uid, username: u.info?.username || "Jugador", avatar: u.info?.avatar || "", nivel: u.stats?.nivel || 1, racha: racha, logros: cantLogros, prestigio: prestigio });
+      });
+
+      lista.sort((a, b) => b.prestigio - a.prestigio);
+
+      container.innerHTML = "";
+      lista.slice(0, 50).forEach((user, index) => {
+        let medalla = `#${index + 1}`;
+        if (index === 0) medalla = "🥇 1°"; if (index === 1) medalla = "🥈 2°"; if (index === 2) medalla = "🥉 3°";
+
+        container.innerHTML += `
+          <div class="list-item">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <div style="font-weight:800; font-size:1.1rem; width:45px; color:${index < 3 ? 'var(--gold)' : 'var(--text-muted)'}">${medalla}</div>
+              <div class="user-avatar-mini">${user.avatar ? `<img src="${user.avatar}">` : user.username.charAt(0).toUpperCase()}</div>
+              <div><div style="font-weight:700;">${user.username}</div><div style="font-size:0.75rem; color:var(--text-muted);">UID: ${user.uid}</div></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div style="text-align:right;">
+                <div style="font-weight:800; color:var(--primary); font-size:1.05rem;">⭐ ${user.prestigio.toLocaleString()} pts</div>
+                <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">${user.racha}🔥 | ${user.logros}🏅</div>
+              </div>
+              <button class="btn-sm btn-sm-secondary" onclick="verPerfilAmigo('${user.uid}')">Ver Perfil</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // --- AMIGOS Y PERFILES EXTERNOS (CON VALIDACIONES CORREGIDAS) ---
+    async function enviarSolicitudAmigo(targetUID_direct = null) {
+      const targetUID = targetUID_direct || document.getElementById("input-add-friend").value.trim();
+      if (!targetUID || targetUID === activeUID) { alert("No puedes enviarte una solicitud a ti mismo."); return; }
       try {
         const snap = await db.ref('users/' + targetUID).once('value');
-        if (!snap.exists()) {
-          msg.style.color = "#ef4444";
-          msg.textContent = "No se encontró ningún jugador con esa ID.";
-          return;
-        }
+        if (!snap.exists()) { alert("No se encontró al jugador."); return; }
+        if (currentUserData.amigos && currentUserData.amigos[targetUID]) { alert("Ya son amigos."); return; }
 
-        const targetData = snap.val();
-        if (currentUserData.amigos && currentUserData.amigos[targetUID]) {
-          msg.style.color = "#ef4444";
-          msg.textContent = "Ya son amigos.";
-          return;
-        }
-
-        await db.ref(`users/${targetUID}/solicitudes/${activeUID}`).set({
-          sender_uid: activeUID,
-          sender_name: currentUserData.info?.username || "Jugador",
-          sender_avatar: currentUserData.info?.avatar || "",
-          fecha: new Date().toLocaleDateString()
-        });
-
-        msg.style.color = "#10b981";
-        msg.textContent = `¡Solicitud enviada a ${targetData.info?.username || targetUID}!`;
-        document.getElementById("input-add-friend").value = "";
-      } catch (err) {
-        msg.style.color = "#ef4444";
-        msg.textContent = "Error al enviar la solicitud.";
-      }
+        await db.ref(`users/${targetUID}/solicitudes/${activeUID}`).set({ sender_uid: activeUID, sender_name: currentUserData.info?.username || "Jugador", sender_avatar: currentUserData.info?.avatar || "", fecha: new Date().toLocaleDateString() });
+        alert("¡Solicitud enviada con éxito!"); 
+        if (document.getElementById("input-add-friend")) document.getElementById("input-add-friend").value = "";
+      } catch (err) { alert("Error al enviar solicitud."); }
     }
 
     async function responderSolicitud(remitenteUID, aceptar) {
       if (aceptar) {
-        const snapRemitente = await db.ref('users/' + remitenteUID).once('value');
-        const dataRem = snapRemitente.val() || {};
-
-        await db.ref(`users/${activeUID}/amigos/${remitenteUID}`).set({
-          username: dataRem.info?.username || "Amigo",
-          avatar: dataRem.info?.avatar || "",
-          nivel: dataRem.stats?.nivel || 1
-        });
-
-        await db.ref(`users/${remitenteUID}/amigos/${activeUID}`).set({
-          username: currentUserData.info?.username || "Amigo",
-          avatar: currentUserData.info?.avatar || "",
-          nivel: currentUserData.stats?.nivel || 1
-        });
+        const snap = await db.ref('users/' + remitenteUID).once('value'); const dataRem = snap.val() || {};
+        await db.ref(`users/${activeUID}/amigos/${remitenteUID}`).set({ username: dataRem.info?.username || "Amigo", avatar: dataRem.info?.avatar || "", nivel: dataRem.stats?.nivel || 1 });
+        await db.ref(`users/${remitenteUID}/amigos/${activeUID}`).set({ username: currentUserData.info?.username || "Amigo", avatar: currentUserData.info?.avatar || "", nivel: currentUserData.stats?.nivel || 1 });
       }
-
       await db.ref(`users/${activeUID}/solicitudes/${remitenteUID}`).remove();
     }
 
     function renderAmigos(amigosObj) {
       const container = document.getElementById("friends-list-container");
       const uids = Object.keys(amigosObj);
-      document.getElementById("cnt-friends").textContent = uids.length;
-
-      if (uids.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">No tienes amigos agregados aún. ¡Comparte tu UID!</p>`;
-        return;
-      }
+      if (uids.length === 0) { container.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">No tienes amigos agregados.</p>`; return; }
 
       container.innerHTML = "";
       uids.forEach(fUid => {
         const f = amigosObj[fUid];
-        const card = document.createElement("div");
-        card.className = "friend-card";
-        card.innerHTML = `
-          <div style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="verPerfilAmigo('${fUid}')">
-            <div class="user-avatar-mini">
-              ${f.avatar ? `<img src="${f.avatar}">` : f.username.charAt(0).toUpperCase()}
+        container.innerHTML += `
+          <div class="list-item">
+            <div style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="verPerfilAmigo('${fUid}')">
+              <div class="user-avatar-mini">${f.avatar ? `<img src="${f.avatar}">` : f.username.charAt(0).toUpperCase()}</div>
+              <div><div style="font-weight:700;">${f.username}</div><div style="font-size:0.75rem; color:var(--text-muted);">Lv. ${f.nivel || 1}</div></div>
             </div>
-            <div>
-              <div style="font-weight:700;">${f.username}</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">Lv. ${f.nivel || 1} • ${fUid}</div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-sm btn-sm-secondary" onclick="verPerfilAmigo('${fUid}')">Ver Perfil</button>
+              <button class="btn-sm btn-sm-primary" onclick="abrirModalRedactar('${fUid}')">✉️</button>
             </div>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <button class="btn-sm btn-sm-secondary" onclick="verPerfilAmigo('${fUid}')">Ver Perfil</button>
-            <button class="btn-sm btn-sm-primary" onclick="abrirModalMensaje('${fUid}')">Correo</button>
           </div>
         `;
-        container.appendChild(card);
       });
     }
 
-    // --- 7. VER PERFIL DE AMIGO (DETALLE COMPLETO) ---
-    async function verPerfilAmigo(amigoUID) {
-      const modal = document.getElementById("friend-profile-modal");
-      modal.style.display = "flex";
-
+    async function verPerfilAmigo(targetUID) {
+      document.getElementById("friend-profile-modal").style.display = "flex";
       document.getElementById("fp-username").textContent = "Cargando...";
-      document.getElementById("fp-uid").textContent = `UID: ${amigoUID}`;
-      document.getElementById("fp-avatar").innerHTML = "?";
-      document.getElementById("fp-achievements-container").innerHTML = "<p style='font-size:0.85rem; color:var(--text-muted);'>Cargando logros...</p>";
 
       try {
-        const snap = await db.ref('users/' + amigoUID).once('value');
-        if (!snap.exists()) {
-          alert("No se pudieron cargar los datos del jugador.");
-          cerrarPerfilAmigo();
-          return;
-        }
-
+        const snap = await db.ref('users/' + targetUID).once('value');
+        if (!snap.exists()) { alert("Error al cargar perfil."); cerrarPerfilAmigo(); return; }
         const data = snap.val();
-        const uname = data.info?.username || "Amigo";
-        const avatar = data.info?.avatar || "";
-        const nivel = data.stats?.nivel || 1;
-        const enjoirs = data.inventario?.enjoirs || 0;
-        const dulucks = data.inventario?.dulucks || (data.inventario?.duluck || 0);
+        
+        let cantLogros = 0;
+        if (data.logros) Object.values(data.logros).forEach(l => { if ((typeof l === "object" && (l.unlocked||l.desbloqueado)) || (typeof l === "boolean" && l)) cantLogros++; });
+
         const racha = data.stats?.racha_maxima || 0;
+        const prestigio = (racha * 100) + (cantLogros * 250);
 
-        document.getElementById("fp-username").textContent = uname;
-        document.getElementById("fp-level").textContent = `Lv. ${nivel}`;
-        document.getElementById("fp-enjoirs").textContent = enjoirs.toLocaleString();
-        document.getElementById("fp-dulucks").textContent = dulucks.toLocaleString();
-        document.getElementById("fp-racha").textContent = `${racha} 🔥`;
-
+        document.getElementById("fp-username").textContent = data.info?.username || "Jugador";
+        document.getElementById("fp-uid").textContent = `UID: ${targetUID}`;
+        document.getElementById("fp-score").textContent = `Prestigio: ${prestigio.toLocaleString()} pts`;
+        document.getElementById("fp-level").textContent = data.stats?.nivel || 1;
+        document.getElementById("fp-racha").textContent = racha;
+        document.getElementById("fp-ach-count").textContent = cantLogros;
+        
         const avatarEl = document.getElementById("fp-avatar");
-        if (avatar) {
-          avatarEl.innerHTML = `<img src="${avatar}">`;
+        if (data.info?.avatar) avatarEl.innerHTML = `<img src="${data.info.avatar}">`;
+        else avatarEl.textContent = (data.info?.username || "J").charAt(0).toUpperCase();
+
+        // VALIDACIÓN DE ACCIONES DE AMISTAD
+        const actionsBox = document.getElementById("fp-actions-container");
+        actionsBox.innerHTML = "";
+
+        if (targetUID === activeUID) {
+          actionsBox.innerHTML = `<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">(Este es tu propio perfil)</span>`;
         } else {
-          avatarEl.textContent = uname.charAt(0).toUpperCase();
+          const yaEsAmigo = currentUserData?.amigos && !!currentUserData.amigos[targetUID];
+          
+          if (yaEsAmigo) {
+            actionsBox.innerHTML += `<button class="btn-sm btn-sm-success" style="opacity:0.8; cursor:default;">✓ Ya son amigos</button>`;
+          } else {
+            actionsBox.innerHTML += `<button class="btn-sm btn-sm-success" onclick="enviarSolicitudAmigo('${targetUID}')">➕ Añadir Amigo</button>`;
+          }
+          actionsBox.innerHTML += `<button class="btn-sm btn-sm-primary" onclick="cerrarPerfilAmigo(); abrirModalRedactar('${targetUID}')">✉️ Enviar Correo</button>`;
         }
 
-        // Configurar botón de correo directo desde el perfil
-        document.getElementById("fp-btn-mail").onclick = () => {
-          cerrarPerfilAmigo();
-          abrirModalMensaje(amigoUID);
-        };
-
-        // Renderizar logros del amigo
-        const userLogros = data.logros || {};
-        const achContainer = document.getElementById("fp-achievements-container");
-        achContainer.innerHTML = "";
-        let completados = 0;
-
+        const achContainer = document.getElementById("fp-achievements-container"); achContainer.innerHTML = "";
         LISTA_LOGROS.forEach(l => {
-          const item = userLogros[l.id];
-          let desbloqueado = false;
-          let valor = 0;
-
-          if (typeof item === "object" && item !== null) {
-            desbloqueado = !!(item.unlocked ?? item.desbloqueado);
-            valor = Number(item.val ?? item.valor ?? 0);
-          } else if (typeof item === "boolean") {
-            desbloqueado = item;
-            if (item) valor = l.meta;
-          } else if (typeof item === "number") {
-            desbloqueado = item >= l.meta;
-            valor = item;
-          }
-
-          if (desbloqueado) completados++;
-          const pct = Math.min(100, Math.round((valor / l.meta) * 100));
-
-          const div = document.createElement("div");
-          div.style.cssText = `background:${desbloqueado ? '#fffdf5' : '#f8fafc'}; border:1px solid ${desbloqueado ? '#fbbf24' : 'var(--card-border)'}; border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;`;
-          div.innerHTML = `
-            <div>
-              <div style="font-weight:700; font-size:0.85rem;">${desbloqueado ? '🏆 ' : '🔒 '}${l.titulo}</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">${l.desc}</div>
-            </div>
-            <div style="text-align:right;">
-              <span class="badge-rarity badge-${l.rareza}">${l.rareza.replace('_', ' ')}</span>
-              <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); margin-top:2px;">${valor}/${l.meta}</div>
-            </div>
-          `;
-          achContainer.appendChild(div);
+          const item = (data.logros||{})[l.id];
+          let desb = false; let val = 0;
+          if (typeof item==="object"&&item!==null){ desb = !!(item.unlocked??item.desbloqueado); val=item.val??item.valor??0; }
+          else if (typeof item==="boolean"){ desb = item; val = item?l.meta:0; }
+          else if (typeof item==="number"){ desb = item>=l.meta; val = item; }
+          
+          achContainer.innerHTML += `<div style="background:${desb?'#fffdf5':'#f8fafc'}; border:1px solid ${desb?'#fbbf24':'var(--card-border)'}; border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="font-weight:700; font-size:0.85rem;">${desb?'🏆':'🔒'} ${l.titulo}</div><div style="font-size:0.75rem; color:var(--text-muted);">${l.desc}</div></div>
+            <div style="text-align:right;"><span class="badge-rarity badge-${l.rareza}">${l.rareza.replace('_',' ')}</span><div style="font-size:0.7rem; font-weight:700; margin-top:2px;">${val}/${l.meta}</div></div>
+          </div>`;
         });
+      } catch(e) { cerrarPerfilAmigo(); }
+    }
+    function cerrarPerfilAmigo() { document.getElementById("friend-profile-modal").style.display = "none"; }
 
-        document.getElementById("fp-ach-count").textContent = `${completados} / ${LISTA_LOGROS.length}`;
-
-      } catch(err) {
-        alert("Error de conexión al cargar el perfil.");
-        cerrarPerfilAmigo();
-      }
+    // --- BUZÓN ---
+    function cambiarSubBuzon(tipo) {
+      subBuzonActual = tipo;
+      document.getElementById("btn-sub-inbox").classList.toggle("active", tipo === "recibidos");
+      document.getElementById("btn-sub-sent").classList.toggle("active", tipo === "enviados");
+      renderBuzon();
     }
 
-    function cerrarPerfilAmigo() {
-      document.getElementById("friend-profile-modal").style.display = "none";
-    }
+    function renderBuzon() {
+      if (!currentUserData) return;
+      const solicitudesObj = currentUserData.solicitudes || {};
+      const buzonObj = currentUserData.buzon || {};
+      const enviadosObj = currentUserData.enviados || {};
 
-    // --- 8. BANDEJA DE ENTRADA & MENSAJES ---
-    function renderBuzon(solicitudesObj, buzonObj) {
-      const solContainer = document.getElementById("solicitudes-container");
-      const msgContainer = document.getElementById("mensajes-container");
       const solKeys = Object.keys(solicitudesObj);
-      const msgKeys = Object.keys(buzonObj);
+      const unread = Object.values(buzonObj).filter(m => !m.leido).length;
+      const totalNotif = solKeys.length + unread;
 
-      const totalNotif = solKeys.length + msgKeys.length;
-      const badge = document.getElementById("badge-inbox");
-      if (totalNotif > 0) {
-        badge.style.display = "inline-block";
-        badge.textContent = totalNotif;
-      } else {
-        badge.style.display = "none";
-      }
+      const badge = document.getElementById("badge-top-inbox");
+      if (totalNotif > 0) { badge.style.display = "block"; badge.textContent = totalNotif; }
+      else badge.style.display = "none";
 
-      if (solKeys.length === 0) {
-        solContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">No tienes solicitudes pendientes.</p>`;
-      } else {
+      const solContainer = document.getElementById("solicitudes-container");
+      if (solKeys.length === 0) solContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">No tienes solicitudes pendientes.</p>`;
+      else {
         solContainer.innerHTML = "";
         solKeys.forEach(sUid => {
           const req = solicitudesObj[sUid];
-          const item = document.createElement("div");
-          item.className = "inbox-item";
-          item.innerHTML = `
-            <div style="display:flex; align-items:center; gap:12px;">
-              <div class="user-avatar-mini">
-                ${req.sender_avatar ? `<img src="${req.sender_avatar}">` : req.sender_name.charAt(0).toUpperCase()}
+          solContainer.innerHTML += `
+            <div class="list-item">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div class="user-avatar-mini">${req.sender_avatar ? `<img src="${req.sender_avatar}">` : req.sender_name.charAt(0).toUpperCase()}</div>
+                <div><div style="font-weight:700;">${req.sender_name}</div><div style="font-size:0.75rem; color:var(--text-muted);">Solicitud recibida • ${req.fecha || ''}</div></div>
               </div>
-              <div>
-                <div style="font-weight:700;">${req.sender_name}</div>
-                <div style="font-size:0.75rem; color:var(--text-muted);">Solicitud recibida • ${req.fecha || ''}</div>
-              </div>
-            </div>
-            <div style="display:flex; gap:8px;">
-              <button class="btn-sm btn-sm-success" onclick="responderSolicitud('${sUid}', true)">Aceptar</button>
-              <button class="btn-sm btn-sm-danger" onclick="responderSolicitud('${sUid}', false)">Rechazar</button>
-            </div>
-          `;
-          solContainer.appendChild(item);
+              <div style="display:flex; gap:8px;"><button class="btn-sm btn-sm-success" onclick="responderSolicitud('${sUid}', true)">Aceptar</button><button class="btn-sm btn-sm-danger" onclick="responderSolicitud('${sUid}', false)">Rechazar</button></div>
+            </div>`;
         });
       }
 
-      if (msgKeys.length === 0) {
-        msgContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">Tu buzón está vacío.</p>`;
-      } else {
-        msgContainer.innerHTML = "";
-        msgKeys.forEach(mKey => {
-          const m = buzonObj[mKey];
-          const item = document.createElement("div");
-          item.className = "inbox-item";
-          item.style.flexDirection = "column";
-          item.style.alignItems = "flex-start";
-          item.style.gap = "8px";
-          item.innerHTML = `
-            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-              <div style="font-weight:700; color:var(--primary); font-size:0.95rem;">${m.asunto}</div>
-              <button class="btn-sm btn-sm-danger" onclick="borrarMensaje('${mKey}')" style="padding:4px 8px; font-size:0.7rem;">Eliminar</button>
+      const msgContainer = document.getElementById("mensajes-container");
+      const dataset = subBuzonActual === "recibidos" ? buzonObj : enviadosObj;
+      const keys = Object.keys(dataset).reverse();
+
+      if (keys.length === 0) { msgContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">No tienes correos en esta sección.</p>`; return; }
+
+      msgContainer.innerHTML = "";
+      keys.forEach(mKey => {
+        const m = dataset[mKey];
+        const isUnread = (subBuzonActual === "recibidos" && !m.leido);
+        const item = document.createElement("div");
+        item.className = `list-item ${isUnread ? 'unread' : ''}`;
+        item.style.cursor = "pointer";
+        item.onclick = (e) => { if (!e.target.classList.contains("btn-sm")) abrirLectorCorreo(mKey, m, subBuzonActual === "recibidos"); };
+        
+        item.innerHTML = `
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:1.3rem;">${isUnread ? '📩' : '✉️'}</span>
+            <div>
+              <div style="font-weight:${isUnread ? '800' : '600'}; font-size:0.95rem;">${m.asunto}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${subBuzonActual === "recibidos" ? `De: <b>${m.remitente_nombre}</b>` : `Para: <b>${m.destinatario_uid}</b>`} • ${m.fecha}</div>
             </div>
-            <div style="font-size:0.85rem; color:var(--text-dark);">${m.cuerpo}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">De: <b>${m.remitente_nombre}</b> (${m.fecha})</div>
-          `;
-          msgContainer.appendChild(item);
-        });
-      }
+          </div>
+          <button class="btn-sm btn-sm-danger" onclick="borrarMensaje('${mKey}', '${subBuzonActual}')">Borrar</button>
+        `;
+        msgContainer.appendChild(item);
+      });
     }
 
-    function abrirModalMensaje(destUid = "") {
-      document.getElementById("mail-dest-uid").value = destUid;
+    async function abrirLectorCorreo(mKey, mail, esRecibido) {
+      document.getElementById("rm-asunto").textContent = mail.asunto;
+      document.getElementById("rm-remitente").textContent = esRecibido ? `De: ${mail.remitente_nombre} (${mail.remitente_uid})` : `Para: ${mail.destinatario_uid}`;
+      document.getElementById("rm-fecha").textContent = `Fecha: ${mail.fecha}`;
+      document.getElementById("rm-cuerpo").textContent = mail.cuerpo;
+
+      const btnResp = document.getElementById("rm-btn-responder");
+      if (esRecibido) { btnResp.style.display = "inline-block"; btnResp.onclick = () => { cerrarLectorCorreo(); abrirModalRedactar(mail.remitente_uid, `Re: ${mail.asunto}`); }; } 
+      else btnResp.style.display = "none";
+
+      document.getElementById("rm-btn-borrar").onclick = () => { borrarMensaje(mKey, esRecibido ? 'recibidos' : 'enviados'); cerrarLectorCorreo(); };
+      document.getElementById("read-mail-modal").style.display = "flex";
+
+      if (esRecibido && !mail.leido) await db.ref(`users/${activeUID}/buzon/${mKey}/leido`).set(true);
+    }
+    function cerrarLectorCorreo() { document.getElementById("read-mail-modal").style.display = "none"; }
+
+    function abrirModalRedactar(destUid = "", asunto = "") {
+      document.getElementById("mail-dest-uid").value = destUid; document.getElementById("mail-asunto").value = asunto; document.getElementById("mail-cuerpo").value = "";
       document.getElementById("mail-modal").style.display = "flex";
     }
-
-    function cerrarModalMensaje() {
-      document.getElementById("mail-modal").style.display = "none";
-      document.getElementById("mail-asunto").value = "";
-      document.getElementById("mail-cuerpo").value = "";
-    }
+    function cerrarModalRedactar() { document.getElementById("mail-modal").style.display = "none"; }
 
     async function enviarMensaje(e) {
       e.preventDefault();
-      const destUID = document.getElementById("mail-dest-uid").value.trim();
-      const asunto = document.getElementById("mail-asunto").value.trim();
-      const cuerpo = document.getElementById("mail-cuerpo").value.trim();
-
+      const destUID = document.getElementById("mail-dest-uid").value.trim(); const asunto = document.getElementById("mail-asunto").value.trim(); const cuerpo = document.getElementById("mail-cuerpo").value.trim(); const fecha = new Date().toLocaleString();
       const snapDest = await db.ref('users/' + destUID).once('value');
-      if (!snapDest.exists()) {
-        alert("El UID de destino no existe.");
-        return;
+      if (!snapDest.exists()) { alert("El UID de destino no existe."); return; }
+
+      await db.ref(`users/${destUID}/buzon`).push({ remitente_uid: activeUID, remitente_nombre: currentUserData.info?.username || "Jugador", asunto: asunto, cuerpo: cuerpo, fecha: fecha, leido: false });
+      await db.ref(`users/${activeUID}/enviados`).push({ destinatario_uid: destUID, asunto: asunto, cuerpo: cuerpo, fecha: fecha });
+      alert("¡Correo enviado!"); cerrarModalRedactar();
+    }
+    async function borrarMensaje(mailKey, tipo) { await db.ref(`users/${activeUID}/${tipo === 'recibidos' ? 'buzon' : 'enviados'}/${mailKey}`).remove(); }
+
+    // --- FORO CON IMÁGENES ---
+    function previewPostImage(event) {
+      const file = event.target.files[0];
+      const preview = document.getElementById("post-image-preview");
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          postImageBase64 = e.target.result;
+          preview.src = postImageBase64;
+          preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      } else {
+        postImageBase64 = "";
+        preview.style.display = "none";
       }
+    }
 
-      await db.ref(`users/${destUID}/buzon`).push({
-        remitente_uid: activeUID,
-        remitente_nombre: currentUserData.info?.username || "Jugador",
-        asunto: asunto,
-        cuerpo: cuerpo,
-        fecha: new Date().toLocaleString()
+    function escucharForo() {
+      db.ref('foro_posts').on('value', (snap) => {
+        const posts = snap.val() || {}; const container = document.getElementById("forum-posts-container");
+        const postKeys = Object.keys(posts).reverse();
+        if (postKeys.length === 0) { container.innerHTML = `<div class="card-block" style="text-align:center;">No hay publicaciones aún.</div>`; return; }
+
+        container.innerHTML = "";
+        postKeys.forEach(pKey => {
+          const p = posts[pKey]; const likesCount = p.likes ? Object.keys(p.likes).length : 0; const userLiked = p.likes && p.likes[activeUID];
+          container.innerHTML += `
+            <div class="card-block" style="margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,0.03);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="verPerfilAmigo('${p.autor_uid}')">
+                  <div class="user-avatar-mini" style="width:36px; height:36px;">${p.autor_avatar ? `<img src="${p.autor_avatar}">` : p.autor_nombre.charAt(0).toUpperCase()}</div>
+                  <div><span style="font-weight:700; font-size:0.9rem;">${p.autor_nombre}</span><span style="font-size:0.75rem; color:var(--text-muted);"> • ${p.fecha}</span></div>
+                </div>
+                <span class="badge-rarity badge-raro">${p.categoria}</span>
+              </div>
+              <h4 style="font-size:1.1rem; font-weight:800; margin-bottom:6px;">${p.titulo}</h4>
+              <p style="font-size:0.9rem; color:var(--text-dark); line-height:1.5; margin-bottom:12px; white-space:pre-wrap;">${p.cuerpo}</p>
+              ${p.imagen ? `<img src="${p.imagen}" class="post-img">` : ''}
+              <div style="border-top:1px solid var(--card-border); padding-top:10px;"><button class="btn-sm ${userLiked ? 'btn-sm-primary' : 'btn-sm-secondary'}" onclick="darLikePost('${pKey}')">❤️ ${likesCount}</button></div>
+            </div>`;
+        });
       });
-
-      alert("¡Correo enviado con éxito!");
-      cerrarModalMensaje();
     }
 
-    async function borrarMensaje(mailKey) {
-      await db.ref(`users/${activeUID}/buzon/${mailKey}`).remove();
+    function abrirModalCrearPost() { 
+      postImageBase64 = "";
+      document.getElementById("post-image-file").value = "";
+      document.getElementById("post-image-preview").style.display = "none";
+      document.getElementById("create-post-modal").style.display = "flex"; 
+    }
+    function cerrarModalCrearPost() { document.getElementById("create-post-modal").style.display = "none"; }
+
+    async function guardarPostForo(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btn-submit-post");
+      btn.disabled = true;
+      btn.textContent = "Publicando...";
+
+      try {
+        await db.ref('foro_posts').push({
+          autor_uid: activeUID,
+          autor_nombre: currentUserData.info?.username || "Jugador",
+          autor_avatar: currentUserData.info?.avatar || "",
+          categoria: document.getElementById("post-cat").value,
+          titulo: document.getElementById("post-title").value.trim(),
+          cuerpo: document.getElementById("post-body").value.trim(),
+          imagen: postImageBase64 || "",
+          fecha: new Date().toLocaleDateString()
+        });
+        cerrarModalCrearPost();
+      } catch (err) {
+        alert("Error al crear publicación.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Publicar";
+      }
     }
 
-    // --- 9. RENDER LOGROS & CHECK-IN ---
-    function renderLogros() {
-      const container = document.getElementById("achievements-container");
-      container.innerHTML = "";
-      let completados = 0;
-      const userLogros = currentUserData?.logros || {};
-
-      LISTA_LOGROS.forEach(l => {
-        const item = userLogros[l.id];
-        let desbloqueado = false;
-        let valor = 0;
-
-        if (typeof item === "object" && item !== null) {
-          desbloqueado = !!(item.unlocked ?? item.desbloqueado);
-          valor = Number(item.val ?? item.valor ?? 0);
-        } else if (typeof item === "boolean") {
-          desbloqueado = item;
-          if (item) valor = l.meta;
-        } else if (typeof item === "number") {
-          desbloqueado = item >= l.meta;
-          valor = item;
-        }
-
-        if (desbloqueado) completados++;
-        const pct = Math.min(100, Math.round((valor / l.meta) * 100));
-
-        const card = document.createElement("div");
-        card.className = `ach-item ${desbloqueado ? 'unlocked' : 'locked'}`;
-        card.innerHTML = `
-          <div class="ach-icon-box">${desbloqueado ? '🏆' : '🔒'}</div>
-          <div class="ach-body">
-            <div class="ach-title-row">
-              <span style="font-weight:700; font-size:0.95rem;">${l.titulo}</span>
-              <span class="badge-rarity badge-${l.rareza}">${l.rareza.replace('_', ' ')}</span>
-            </div>
-            <div style="font-size:0.82rem; color:var(--text-muted);">${l.desc}</div>
-            <div class="ach-progress-bar">
-              <div class="ach-progress-fill" style="width: ${desbloqueado ? 100 : pct}%;"></div>
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-
-      document.getElementById("disp-ach-count").textContent = `${completados} / ${LISTA_LOGROS.length}`;
+    async function darLikePost(postKey) {
+      const snap = await db.ref(`foro_posts/${postKey}/likes/${activeUID}`).once('value');
+      if (snap.exists()) await db.ref(`foro_posts/${postKey}/likes/${activeUID}`).remove(); 
+      else await db.ref(`foro_posts/${postKey}/likes/${activeUID}`).set(true);
     }
 
+    // --- CHECKIN ---
     async function reclamarCheckin() {
       if (!activeUID || !currentUserData) return;
       const hoy = new Date().toISOString().slice(0, 10);
       const msg = document.getElementById("checkin-msg");
-
-      if (currentUserData.ultimo_checkin === hoy) {
-        msg.style.color = "#ef4444";
-        msg.textContent = "Ya has reclamado la recompensa de hoy.";
-        return;
-      }
-
-      await db.ref('users/' + activeUID).update({
-        "ultimo_checkin": hoy,
-        "inventario/enjoirs": (currentUserData.inventario?.enjoirs ?? 0) + 50
-      });
-
-      msg.style.color = "#10b981";
-      msg.textContent = "¡Has reclamado +50 Enjoirs con éxito!";
+      if (currentUserData.ultimo_checkin === hoy) { msg.style.color = "#ef4444"; msg.textContent = "Ya reclamaste hoy."; return; }
+      await db.ref('users/' + activeUID).update({ "ultimo_checkin": hoy, "inventario/enjoirs": (currentUserData.inventario?.enjoirs ?? 0) + 50 });
+      msg.style.color = "#10b981"; msg.textContent = "¡+50 Enjoirs obtenidos!";
     }
 
-    function logout() {
-      localStorage.removeItem("jopjoir_uid");
-      localStorage.removeItem("jopjoir_username");
-      location.reload();
-    }
-
+    // --- INICIALIZACIÓN ---
     window.addEventListener('DOMContentLoaded', () => {
-      const savedUid = localStorage.getItem("jopjoir_uid");
-      const savedUser = localStorage.getItem("jopjoir_username");
-      if (savedUid && savedUser) iniciarDashboard(savedUid, savedUser);
+      const savedUid = localStorage.getItem("jopjoir_uid"); const savedUser = localStorage.getItem("jopjoir_username");
+      if (savedUid && savedUser) iniciarSesionExito(savedUid, savedUser);
     });
   </script>
 </body>
