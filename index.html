@@ -325,7 +325,6 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* TARJETAS COMUNES */
     .card-block {
       background: white;
       border: 1px solid var(--card-border);
@@ -334,7 +333,7 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.02);
     }
 
-    /* MODAL DE CROPPER */
+    /* MODALES */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -352,8 +351,10 @@
       border-radius: 20px;
       max-width: 480px;
       width: 100%;
-      padding: 20px;
+      padding: 24px;
       box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .crop-container {
@@ -365,7 +366,7 @@
       margin: 16px 0;
     }
 
-    /* BANDEJA Y AMIGOS */
+    /* AMIGOS & BUZÓN */
     .inbox-item, .friend-card {
       display: flex;
       justify-content: space-between;
@@ -375,11 +376,17 @@
       border: 1px solid var(--card-border);
       background: #fafafa;
       margin-bottom: 10px;
+      transition: all 0.2s;
+    }
+
+    .friend-card:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
     }
 
     .user-avatar-mini {
-      width: 44px;
-      height: 44px;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
       background: #e2e8f0;
       display: flex;
@@ -396,11 +403,11 @@
       object-fit: cover;
     }
 
-    /* LOGROS HOYOLAB */
+    /* LOGROS */
     .ach-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
     }
 
     .ach-item {
@@ -452,6 +459,7 @@
       transition: 0.2s;
     }
     .btn-sm-primary { background: var(--primary); color: white; }
+    .btn-sm-secondary { background: #e2e8f0; color: var(--text-dark); }
     .btn-sm-danger { background: #fee2e2; color: #ef4444; }
     .btn-sm-success { background: #dcfce7; color: #15803d; }
   </style>
@@ -607,6 +615,53 @@
 
   </main>
 
+  <div id="friend-profile-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 580px;">
+      
+      <div style="background:linear-gradient(135deg, #6366f1, #8b5cf6); padding:20px; border-radius:16px; color:white; display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div class="user-avatar-mini" id="fp-avatar" style="width:64px; height:64px; font-size:1.8rem; background:white; color:#6366f1; border:3px solid rgba(255,255,255,0.6);">
+            ?
+          </div>
+          <div>
+            <h3 id="fp-username" style="font-size:1.3rem; font-weight:800; line-height:1.2;">Cargando...</h3>
+            <div id="fp-uid" style="font-size:0.75rem; opacity:0.85;">UID: usr_...</div>
+            <div id="fp-level" style="font-size:0.8rem; font-weight:700; margin-top:3px; background:rgba(255,255,255,0.25); display:inline-block; padding:2px 8px; border-radius:6px;">Lv. 1</div>
+          </div>
+        </div>
+        <button class="btn-sm btn-sm-danger" onclick="cerrarPerfilAmigo()" style="background:rgba(255,255,255,0.2); color:white; border:none; font-size:1rem; border-radius:50%; width:32px; height:32px; padding:0;">✕</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:18px;">
+        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;">
+          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">🌸 ENJOIRS</div>
+          <div id="fp-enjoirs" style="font-weight:800; font-size:1.1rem; color:#ec4899;">0</div>
+        </div>
+        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;">
+          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">🍀 DULUCKS</div>
+          <div id="fp-dulucks" style="font-weight:800; font-size:1.1rem; color:#8b5cf6;">0</div>
+        </div>
+        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;">
+          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">🔥 RACHA MÁX</div>
+          <div id="fp-racha" style="font-weight:800; font-size:1.1rem; color:#f59e0b;">0</div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h4 style="font-size:1rem; font-weight:800;">🏅 Logros Desbloqueados</h4>
+        <span id="fp-ach-count" style="font-size:0.8rem; font-weight:800; color:var(--primary);">0 / 0</span>
+      </div>
+
+      <div id="fp-achievements-container" style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px; margin-bottom:16px;">
+        </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn-sm btn-sm-primary" id="fp-btn-mail" style="padding:10px 18px;">✉️ Enviar Correo</button>
+      </div>
+
+    </div>
+  </div>
+
   <div id="crop-modal" class="modal-overlay">
     <div class="modal-content">
       <h3 style="font-size:1.2rem; font-weight:800;">Ajustar Foto de Perfil</h3>
@@ -697,7 +752,7 @@
       document.getElementById(`tab-${tabName}-view`).classList.add('active');
     }
 
-    // --- 3. AUTENTICACIÓN DIRECTA CON BASE DE GAMEMAKER ---
+    // --- 3. AUTENTICACIÓN ---
     async function handleAuth(e) {
       e.preventDefault();
       const txt_user = document.getElementById("auth-user").value.trim();
@@ -766,7 +821,6 @@
       db.ref('users/' + uid).on('value', (snapshot) => {
         currentUserData = snapshot.val() || {};
 
-        // Info & Avatar
         const uname = currentUserData.info?.username || username;
         document.getElementById("disp-username").textContent = uname;
         
@@ -777,13 +831,11 @@
           avatarEl.textContent = uname.charAt(0).toUpperCase();
         }
 
-        // Monedas
         document.getElementById("disp-level").textContent = `Lv. ${currentUserData.stats?.nivel ?? 1}`;
         document.getElementById("cnt-enjoirs").textContent = (currentUserData.inventario?.enjoirs ?? 0).toLocaleString();
         document.getElementById("cnt-dulucks").textContent = (currentUserData.inventario?.dulucks ?? 0).toLocaleString();
         document.getElementById("cnt-tickets").textContent = (currentUserData.inventario?.tickets ?? 0).toLocaleString();
 
-        // Renderizar secciones
         renderLogros();
         renderAmigos(currentUserData.amigos || {});
         renderBuzon(currentUserData.solicitudes || {}, currentUserData.buzon || {});
@@ -831,7 +883,6 @@
 
     async function guardarRecorteAvatar() {
       if (!cropper || !activeUID) return;
-
       const canvas = cropper.getCroppedCanvas({ width: 160, height: 160 });
       const base64Avatar = canvas.toDataURL('image/jpeg', 0.85);
 
@@ -839,7 +890,7 @@
       cerrarCropper();
     }
 
-    // --- 6. SISTEMA DE AMIGOS POR ID ---
+    // --- 6. AMIGOS & VER PERFIL DE AMIGO ---
     async function enviarSolicitudAmigo() {
       const targetUID = document.getElementById("input-add-friend").value.trim();
       const msg = document.getElementById("friend-search-msg");
@@ -868,7 +919,6 @@
           return;
         }
 
-        // Registrar solicitud en el destinatario
         await db.ref(`users/${targetUID}/solicitudes/${activeUID}`).set({
           sender_uid: activeUID,
           sender_name: currentUserData.info?.username || "Jugador",
@@ -890,7 +940,6 @@
         const snapRemitente = await db.ref('users/' + remitenteUID).once('value');
         const dataRem = snapRemitente.val() || {};
 
-        // Agregar a la lista de amigos de ambos
         await db.ref(`users/${activeUID}/amigos/${remitenteUID}`).set({
           username: dataRem.info?.username || "Amigo",
           avatar: dataRem.info?.avatar || "",
@@ -904,7 +953,6 @@
         });
       }
 
-      // Eliminar solicitud
       await db.ref(`users/${activeUID}/solicitudes/${remitenteUID}`).remove();
     }
 
@@ -924,7 +972,7 @@
         const card = document.createElement("div");
         card.className = "friend-card";
         card.innerHTML = `
-          <div style="display:flex; align-items:center; gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="verPerfilAmigo('${fUid}')">
             <div class="user-avatar-mini">
               ${f.avatar ? `<img src="${f.avatar}">` : f.username.charAt(0).toUpperCase()}
             </div>
@@ -933,20 +981,119 @@
               <div style="font-size:0.75rem; color:var(--text-muted);">Lv. ${f.nivel || 1} • ${fUid}</div>
             </div>
           </div>
-          <button class="btn-sm btn-sm-primary" onclick="abrirModalMensaje('${fUid}')">Enviar Correo</button>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-sm btn-sm-secondary" onclick="verPerfilAmigo('${fUid}')">Ver Perfil</button>
+            <button class="btn-sm btn-sm-primary" onclick="abrirModalMensaje('${fUid}')">Correo</button>
+          </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // --- 7. BANDEJA DE ENTRADA & MENSAJES ---
+    // --- 7. VER PERFIL DE AMIGO (DETALLE COMPLETO) ---
+    async function verPerfilAmigo(amigoUID) {
+      const modal = document.getElementById("friend-profile-modal");
+      modal.style.display = "flex";
+
+      document.getElementById("fp-username").textContent = "Cargando...";
+      document.getElementById("fp-uid").textContent = `UID: ${amigoUID}`;
+      document.getElementById("fp-avatar").innerHTML = "?";
+      document.getElementById("fp-achievements-container").innerHTML = "<p style='font-size:0.85rem; color:var(--text-muted);'>Cargando logros...</p>";
+
+      try {
+        const snap = await db.ref('users/' + amigoUID).once('value');
+        if (!snap.exists()) {
+          alert("No se pudieron cargar los datos del jugador.");
+          cerrarPerfilAmigo();
+          return;
+        }
+
+        const data = snap.val();
+        const uname = data.info?.username || "Amigo";
+        const avatar = data.info?.avatar || "";
+        const nivel = data.stats?.nivel || 1;
+        const enjoirs = data.inventario?.enjoirs || 0;
+        const dulucks = data.inventario?.dulucks || (data.inventario?.duluck || 0);
+        const racha = data.stats?.racha_maxima || 0;
+
+        document.getElementById("fp-username").textContent = uname;
+        document.getElementById("fp-level").textContent = `Lv. ${nivel}`;
+        document.getElementById("fp-enjoirs").textContent = enjoirs.toLocaleString();
+        document.getElementById("fp-dulucks").textContent = dulucks.toLocaleString();
+        document.getElementById("fp-racha").textContent = `${racha} 🔥`;
+
+        const avatarEl = document.getElementById("fp-avatar");
+        if (avatar) {
+          avatarEl.innerHTML = `<img src="${avatar}">`;
+        } else {
+          avatarEl.textContent = uname.charAt(0).toUpperCase();
+        }
+
+        // Configurar botón de correo directo desde el perfil
+        document.getElementById("fp-btn-mail").onclick = () => {
+          cerrarPerfilAmigo();
+          abrirModalMensaje(amigoUID);
+        };
+
+        // Renderizar logros del amigo
+        const userLogros = data.logros || {};
+        const achContainer = document.getElementById("fp-achievements-container");
+        achContainer.innerHTML = "";
+        let completados = 0;
+
+        LISTA_LOGROS.forEach(l => {
+          const item = userLogros[l.id];
+          let desbloqueado = false;
+          let valor = 0;
+
+          if (typeof item === "object" && item !== null) {
+            desbloqueado = !!(item.unlocked ?? item.desbloqueado);
+            valor = Number(item.val ?? item.valor ?? 0);
+          } else if (typeof item === "boolean") {
+            desbloqueado = item;
+            if (item) valor = l.meta;
+          } else if (typeof item === "number") {
+            desbloqueado = item >= l.meta;
+            valor = item;
+          }
+
+          if (desbloqueado) completados++;
+          const pct = Math.min(100, Math.round((valor / l.meta) * 100));
+
+          const div = document.createElement("div");
+          div.style.cssText = `background:${desbloqueado ? '#fffdf5' : '#f8fafc'}; border:1px solid ${desbloqueado ? '#fbbf24' : 'var(--card-border)'}; border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;`;
+          div.innerHTML = `
+            <div>
+              <div style="font-weight:700; font-size:0.85rem;">${desbloqueado ? '🏆 ' : '🔒 '}${l.titulo}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${l.desc}</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="badge-rarity badge-${l.rareza}">${l.rareza.replace('_', ' ')}</span>
+              <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); margin-top:2px;">${valor}/${l.meta}</div>
+            </div>
+          `;
+          achContainer.appendChild(div);
+        });
+
+        document.getElementById("fp-ach-count").textContent = `${completados} / ${LISTA_LOGROS.length}`;
+
+      } catch(err) {
+        alert("Error de conexión al cargar el perfil.");
+        cerrarPerfilAmigo();
+      }
+    }
+
+    function cerrarPerfilAmigo() {
+      document.getElementById("friend-profile-modal").style.display = "none";
+    }
+
+    // --- 8. BANDEJA DE ENTRADA & MENSAJES ---
     function renderBuzon(solicitudesObj, buzonObj) {
       const solContainer = document.getElementById("solicitudes-container");
       const msgContainer = document.getElementById("mensajes-container");
       const solKeys = Object.keys(solicitudesObj);
       const msgKeys = Object.keys(buzonObj);
 
-      // Actualizar burbuja de notificación
       const totalNotif = solKeys.length + msgKeys.length;
       const badge = document.getElementById("badge-inbox");
       if (totalNotif > 0) {
@@ -956,7 +1103,6 @@
         badge.style.display = "none";
       }
 
-      // 1. Render Solicitudes
       if (solKeys.length === 0) {
         solContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">No tienes solicitudes pendientes.</p>`;
       } else {
@@ -984,7 +1130,6 @@
         });
       }
 
-      // 2. Render Mensajes/Correos
       if (msgKeys.length === 0) {
         msgContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">Tu buzón está vacío.</p>`;
       } else {
@@ -1048,7 +1193,7 @@
       await db.ref(`users/${activeUID}/buzon/${mailKey}`).remove();
     }
 
-    // --- 8. RENDER LOGROS & CHECK-IN ---
+    // --- 9. RENDER LOGROS & CHECK-IN ---
     function renderLogros() {
       const container = document.getElementById("achievements-container");
       container.innerHTML = "";
