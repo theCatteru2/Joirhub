@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JopJoir - Panel de Usuario</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #f3e8ff 0%, #e0f2fe 35%, #fff0f5 70%, #fffacd 100%);
+      --card-bg: rgba(255, 255, 255, 0.78);
+      --card-border: rgba(255, 255, 255, 0.6);
+      --text-main: #2d3748;
+      --text-muted: #718096;
+      --accent-gold: #f59e0b;
+      --accent-enjoir: #ec4899;
+      --accent-duluck: #8b5cf6;
+      --accent-ticket: #3b82f6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+      min-height: 100vh;
+      color: var(--text-main);
+      padding: 24px 16px;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.07);
+      padding: 24px;
+    }
+
+    /* AUTH VIEW */
+    #auth-view {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 85vh;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .auth-box h1 {
+      font-size: 2rem;
+      margin-bottom: 6px;
+      color: #3b4252;
+    }
+
+    .auth-box p {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .auth-tabs button {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      background: transparent;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .auth-tabs button.active {
+      background: #ffffff;
+      color: var(--text-main);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .input-group {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #4a5568;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--accent-duluck);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ffd700, #ffb800);
+      color: #2d3748;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(255, 184, 0, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 184, 0, 0.45);
+    }
+
+    .auth-msg {
+      margin-top: 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      min-height: 20px;
+    }
+
+    /* DASHBOARD */
+    #dashboard-view {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .user-tag {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-logout {
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      background: white;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #e53e3e;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+
+    .grid-counters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.55);
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .stat-val {
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+
+    .stat-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+
+    .ach-card {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ach-card.unlocked {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: #ffd700;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
+    }
+
+    .ach-card.locked {
+      opacity: 0.6;
+      filter: grayscale(0.4);
+    }
+
+    .ach-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ach-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .badge-comun { background: #e2e8f0; color: #475569; }
+    .badge-raro { background: #e0f2fe; color: #0284c7; }
+    .badge-muy_raro { background: #f3e8ff; color: #7e22ce; }
+    .badge-inaudito { background: #fef08a; color: #a16207; }
+
+    .ach-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 7px;
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .ach-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <div id="auth-view">
+      <div class="glass-card auth-box">
+        <h1>🌟 JopJoir Web</h1>
+        <p>Inicia sesión con tu cuenta del juego</p>
+
+        <div class="auth-tabs">
+          <button id="tab-login" class="active" onclick="switchTab('login')">Entrar</button>
+          <button id="tab-register" onclick="switchTab('register')">Registrarse</button>
+        </div>
+
+        <form id="auth-form" onsubmit="handleAuth(event)">
+          <div class="input-group">
+            <label>Nombre de Usuario</label>
+            <input type="text" id="auth-user" required placeholder="Tu nombre del juego">
+          </div>
+
+          <div class="input-group" id="group-email" style="display:none;">
+            <label>Correo Electrónico (Opcional)</label>
+            <input type="email" id="auth-email" placeholder="correo@ejemplo.com">
+          </div>
+
+          <div class="input-group">
+            <label>Contraseña</label>
+            <input type="password" id="auth-pass" required placeholder="••••••••">
+          </div>
+
+          <button type="submit" class="btn-main" id="btn-submit">Iniciar Sesión</button>
+        </form>
+
+        <div id="auth-msg" class="auth-msg"></div>
+      </div>
+    </div>
+
+    <div id="dashboard-view">
+      
+      <div class="glass-card top-bar">
+        <div class="user-tag">
+          <div class="avatar" id="disp-avatar">🎮</div>
+          <div>
+            <h2 id="disp-username">Cargando...</h2>
+            <span style="font-size:0.85rem; color:var(--text-muted);" id="disp-uid"></span>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+      </div>
+
+      <div class="grid-counters">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fce7f3; color:#ec4899;">🌸</div>
+          <div>
+            <div class="stat-title">Enjoirs</div>
+            <div class="stat-val" id="cnt-enjoirs">0</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#ede9fe; color:#8b5cf6;">🍀</div>
+          <div>
+            <div class="stat-title">Dulucks</div>
+            <div class="stat-val" id="cnt-dulucks">0</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#dbeafe; color:#3b82f6;">🎟️</div>
+          <div>
+            <div class="stat-title">Tickets</div>
+            <div class="stat-val" id="cnt-tickets">0</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fef3c7; color:#d97706;">🏆</div>
+          <div>
+            <div class="stat-title">Nivel / Racha</div>
+            <div class="stat-val" id="cnt-nivel-racha">Lv. 1 | 0 🔥</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="section-title">
+          <span>🏅 Logros de JopJoir</span>
+          <span id="disp-ach-count" style="font-size:0.95rem; color:var(--accent-gold);">0 / 0</span>
+        </div>
+
+        <div class="achievements-grid" id="achievements-container"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // --- 1. FIREBASE CONFIG (Tu base de datos) ---
+    const firebaseConfig = {
+      databaseURL: "https://jopjoirdatabase-default-rtdb.firebaseio.com"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // --- 2. LISTA DE LOGROS IDÉNTICA A GAMEMAKER ---
+    const LISTA_LOGROS = [
+      { id: "joircazador_aereo", titulo: "Joircazador Aéreo", desc: "Derrotar un enemigo estando en el aire", rareza: "comun", meta: 1 },
+      { id: "suerte_de_joir", titulo: "Suerte de Joir", desc: "Recolectar un Duluck durante una partida", rareza: "muy_raro", meta: 1 },
+      { id: "cazador_joirs_1", titulo: "Cazador de Joirs I", desc: "Derrotar 10 enemigos en una sola partida", rareza: "comun", meta: 10 },
+      { id: "cazador_joirs_2", titulo: "Cazador de Joirs II", desc: "Derrotar 15 enemigos en una sola partida", rareza: "raro", meta: 15 },
+      { id: "cazador_joirs_3", titulo: "Cazador de Joirs III", desc: "Derrotar 25 enemigos en una sola partida", rareza: "muy_raro", meta: 25 },
+      { id: "cazador_joirs_4", titulo: "Cazador de Joirs IV", desc: "Derrotar 30 enemigos en una sola partida", rareza: "inaudito", meta: 30 },
+      
+      { id: "campeon_invicto_1", titulo: "Campeón Joirinvicto I", desc: "Tener una racha de 5 partidas", rareza: "comun", meta: 5 },
+      { id: "campeon_invicto_2", titulo: "Campeón Joirinvicto II", desc: "Tener una racha de 10 partidas", rareza: "raro", meta: 10 },
+      { id: "campeon_invicto_3", titulo: "Campeón Joirinvicto III", desc: "Tener una racha de 15 partidas", rareza: "muy_raro", meta: 15 },
+      { id: "campeon_invicto_4", titulo: "Campeón Joirinvicto IV", desc: "Tener una racha de 20 partidas", rareza: "muy_raro", meta: 20 },
+      { id: "campeon_invicto_5", titulo: "Campeón Joirinvicto V", desc: "Tener una racha de 50 partidas", rareza: "inaudito", meta: 50 },
+
+      { id: "joir_extremo_1", titulo: "Joir al extremo I", desc: "Ganar 10 partidas de Extremo", rareza: "comun", meta: 10 },
+      { id: "joir_extremo_2", titulo: "Joir al extremo II", desc: "Ganar 20 partidas de Extremo", rareza: "comun", meta: 20 },
+      { id: "joir_extremo_3", titulo: "Joir al extremo III", desc: "Ganar 50 partidas de Extremo", rareza: "raro", meta: 50 },
+      { id: "joir_extremo_4", titulo: "Joir al extremo IV", desc: "Ganar 100 partidas de Extremo", rareza: "muy_raro", meta: 100 },
+      { id: "joir_extremo_5", titulo: "Joir al extremo V", desc: "Ganar 500 partidas de Extremo", rareza: "inaudito", meta: 500 },
+
+      { id: "alcancia_1", titulo: "Alcancía I", desc: "Ahorrar 500 Enjoirs", rareza: "comun", meta: 500 },
+      { id: "alcancia_2", titulo: "Alcancía II", desc: "Ahorrar 1000 Enjoirs", rareza: "comun", meta: 1000 },
+      { id: "alcancia_3", titulo: "Alcancía III", desc: "Ahorrar 2500 Enjoirs", rareza: "raro", meta: 2500 },
+      { id: "alcancia_4", titulo: "Alcancía IV", desc: "Ahorrar 5000 Enjoirs", rareza: "muy_raro", meta: 5000 },
+      { id: "alcancia_5", titulo: "Alcancía V", desc: "Ahorrar 10000 Enjoirs", rareza: "inaudito", meta: 10000 },
+
+      { id: "skins_1", titulo: "Cúbreme de joirskins I", desc: "Compra 1 skin", rareza: "comun", meta: 1 },
+      { id: "skins_2", titulo: "Cúbreme de joirskins II", desc: "Compra 5 skins", rareza: "raro", meta: 5 },
+      { id: "skins_3", titulo: "Cúbreme de joirskins III", desc: "Compra 10 skins", rareza: "muy_raro", meta: 10 },
+      { id: "skins_todas", titulo: "Compra Joircompulsiva", desc: "Compra toda la tienda", rareza: "inaudito", meta: 1 }
+    ];
+
+    let currentMode = "login";
+    let activeUserListener = null;
+
+    // Función equivalente a string_lower(string_lettersdigits(str)) de GameMaker
+    function cleanUsername(str) {
+      return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function switchTab(mode) {
+      currentMode = mode;
+      document.getElementById("tab-login").classList.toggle("active", mode === "login");
+      document.getElementById("tab-register").classList.toggle("active", mode === "register");
+      document.getElementById("group-email").style.display = mode === "register" ? "block" : "none";
+      document.getElementById("btn-submit").textContent = mode === "register" ? "Crear Cuenta" : "Iniciar Sesión";
+      document.getElementById("auth-msg").textContent = "";
+    }
+
+    // --- 3. AUTENTICACIÓN (LOGIN Y REGISTRO GAMEMAKER) ---
+    async function handleAuth(e) {
+      e.preventDefault();
+      const txt_user = document.getElementById("auth-user").value.trim();
+      const txt_pass = document.getElementById("auth-pass").value;
+      const txt_email = document.getElementById("auth-email").value.trim();
+      const msg = document.getElementById("auth-msg");
+
+      const user_clean = cleanUsername(txt_user);
+      if (!user_clean) {
+        msg.style.color = "#e53e3e";
+        msg.textContent = "El nombre de usuario contiene caracteres no válidos.";
+        return;
+      }
+
+      msg.style.color = "#d97706";
+      msg.textContent = "Conectando con el servidor...";
+
+      if (currentMode === "login") {
+        // Consultar /usernames/{user_clean}
+        try {
+          const snapshot = await db.ref('usernames/' + user_clean).once('value');
+          const userData = snapshot.val();
+
+          if (userData && userData.pass === txt_pass) {
+            msg.style.color = "#10b981";
+            msg.textContent = "¡Acceso concedido!";
+            
+            // Guardar sesión local (equivalente a session.ini)
+            localStorage.setItem("jopjoir_uid", userData.uid);
+            localStorage.setItem("jopjoir_username", txt_user);
+
+            iniciarDashboard(userData.uid, txt_user);
+          } else if (userData) {
+            msg.style.color = "#e53e3e";
+            msg.textContent = "Contraseña incorrecta.";
+          } else {
+            msg.style.color = "#e53e3e";
+            msg.textContent = "El usuario no existe.";
+          }
+        } catch (err) {
+          msg.style.color = "#e53e3e";
+          msg.textContent = "Error al conectar con la base de datos.";
+        }
+
+      } else {
+        // REGISTRO
+        try {
+          const snapshot = await db.ref('usernames/' + user_clean).once('value');
+          if (snapshot.exists()) {
+            msg.style.color = "#e53e3e";
+            msg.textContent = "Ese nombre de usuario ya existe.";
+            return;
+          }
+
+          // Generar UID idéntico a GameMaker: usr_YYYYMMDD + random
+          const now = new Date();
+          const y = now.getFullYear();
+          const m = String(now.getMonth() + 1).padStart(2, '0');
+          const d = String(now.getDate()).padStart(2, '0');
+          const rnd = Math.floor(100000 + Math.random() * 900000);
+          const nuevo_uid = `usr_${y}${m}${d}${rnd}`;
+
+          // 1. Guardar en /usernames/{clean}
+          await db.ref('usernames/' + user_clean).set({
+            uid: nuevo_uid,
+            email: txt_email,
+            pass: txt_pass
+          });
+
+          // 2. Guardar en /users/{uid}
+          await db.ref('users/' + nuevo_uid).set({
+            info: { username: txt_user, email: txt_email },
+            inventario: { enjoirs: 0, dulucks: 0, tickets: 0 },
+            stats: { nivel: 1, xp: 0, racha_maxima: 0 }
+          });
+
+          msg.style.color = "#10b981";
+          msg.textContent = "¡Cuenta creada exitosamente!";
+          
+          localStorage.setItem("jopjoir_uid", nuevo_uid);
+          localStorage.setItem("jopjoir_username", txt_user);
+
+          iniciarDashboard(nuevo_uid, txt_user);
+        } catch (err) {
+          msg.style.color = "#e53e3e";
+          msg.textContent = "Error al registrar la cuenta.";
+        }
+      }
+    }
+
+    // --- 4. DASHBOARD Y CARGA EN TIEMPO REAL ---
+    function iniciarDashboard(uid, username) {
+      document.getElementById("auth-view").style.display = "none";
+      document.getElementById("dashboard-view").style.display = "flex";
+
+      document.getElementById("disp-username").textContent = username;
+      document.getElementById("disp-uid").textContent = `ID: ${uid}`;
+      document.getElementById("disp-avatar").textContent = username.charAt(0).toUpperCase();
+
+      // Escuchar cambios en users/{uid} en vivo
+      if (activeUserListener) db.ref('users/' + activeUserListener).off();
+      activeUserListener = uid;
+
+      db.ref('users/' + uid).on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+
+        // Sincronizar nombre si cambió en el juego
+        if (data.info && data.info.username) {
+          document.getElementById("disp-username").textContent = data.info.username;
+        }
+
+        // Monedas y contadores (Mismo esquema que GameMaker)
+        const enjoirs = data.inventario?.enjoirs ?? 0;
+        const dulucks = data.inventario?.dulucks ?? (data.inventario?.duluck ?? 0);
+        const tickets = data.inventario?.tickets ?? 0;
+        const nivel = data.stats?.nivel ?? 1;
+        const racha = data.stats?.racha_maxima ?? (data.stats?.racha ?? 0);
+
+        document.getElementById("cnt-enjoirs").textContent = enjoirs.toLocaleString();
+        document.getElementById("cnt-dulucks").textContent = dulucks.toLocaleString();
+        document.getElementById("cnt-tickets").textContent = tickets.toLocaleString();
+        document.getElementById("cnt-nivel-racha").textContent = `Lv. ${nivel} | ${racha} 🔥`;
+
+        // Renderizar logros con soporte multi-formato (objeto, bool, número)
+        renderLogros(data.logros || {});
+      });
+    }
+
+    function renderLogros(userLogros) {
+      const container = document.getElementById("achievements-container");
+      container.innerHTML = "";
+      let completados = 0;
+
+      LISTA_LOGROS.forEach((l) => {
+        const item = userLogros[l.id];
+        let desbloqueado = false;
+        let valor = 0;
+
+        // Soporte exacto para como GameMaker lee los logros:
+        if (typeof item === "object" && item !== null) {
+          desbloqueado = !!(item.unlocked ?? item.desbloqueado ?? false);
+          valor = Number(item.val ?? item.valor ?? 0);
+        } else if (typeof item === "boolean") {
+          desbloqueado = item;
+          if (item) valor = l.meta;
+        } else if (typeof item === "number") {
+          desbloqueado = item >= l.meta;
+          valor = item;
+        }
+
+        if (desbloqueado) completados++;
+
+        const pct = Math.min(100, Math.round((valor / l.meta) * 100));
+
+        const card = document.createElement("div");
+        card.className = `ach-card ${desbloqueado ? 'unlocked' : 'locked'}`;
+
+        card.innerHTML = `
+          <div class="ach-header">
+            <span class="ach-name">${desbloqueado ? '★ ' : '🔒 '}${l.titulo}</span>
+            <span class="badge badge-${l.rareza}">${l.rareza.replace('_', ' ')}</span>
+          </div>
+          <div class="ach-desc">${l.desc}</div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: ${desbloqueado ? 100 : pct}%;"></div>
+          </div>
+          <div class="ach-footer">
+            <span>${desbloqueado ? 'COMPLETADO' : 'EN PROGRESO'}</span>
+            <span>${valor} / ${l.meta}</span>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      document.getElementById("disp-ach-count").textContent = `${completados} / ${LISTA_LOGROS.length} Desbloqueados`;
+    }
+
+    function logout() {
+      if (activeUserListener) {
+        db.ref('users/' + activeUserListener).off();
+        activeUserListener = null;
+      }
+      localStorage.removeItem("jopjoir_uid");
+      localStorage.removeItem("jopjoir_username");
+
+      document.getElementById("auth-view").style.display = "flex";
+      document.getElementById("dashboard-view").style.display = "none";
+      document.getElementById("auth-msg").textContent = "";
+    }
+
+    // Auto-login si ya inició sesión antes (como tu session.ini)
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedUid = localStorage.getItem("jopjoir_uid");
+      const savedUser = localStorage.getItem("jopjoir_username");
+
+      if (savedUid && savedUser) {
+        iniciarDashboard(savedUid, savedUser);
+      }
+    });
+  </script>
+</body>
+</html>
