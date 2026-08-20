@@ -145,6 +145,25 @@
     .level-badge { position: absolute; bottom: -4px; right: -4px; background: #f59e0b; color: #fff; font-size: 0.8rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; border: 2px solid white; }
     .wallet-pill { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); padding: 10px 16px; border-radius: 14px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
 
+    /* STATS GRID */
+    .stat-grid-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-item-card {
+      background: #f8fafc;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 12px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .stat-item-card:hover { transform: translateY(-2px); }
+    .stat-item-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+    .stat-item-value { font-size: 1.25rem; font-weight: 800; color: var(--text-dark); }
+
     /* LISTAS */
     .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 12px; border: 1px solid var(--card-border); background: #fafafa; margin-bottom: 10px; transition: all 0.2s; }
     .list-item:hover { background: #f8fafc; border-color: #cbd5e1; }
@@ -229,6 +248,7 @@
       .content-area { padding: 16px; }
       .profile-hero { padding: 20px; gap: 14px; }
       .hoyo-avatar { width: 70px; height: 70px; font-size: 1.8rem; }
+      .stat-grid-box { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -389,6 +409,42 @@
               <div class="wallet-pill"><span>🌸</span><div><div style="font-size:0.7rem; opacity:0.8;">Enjoirs</div><div class="val" id="cnt-enjoirs" style="font-size:1.1rem; font-weight:800;">0</div></div></div>
               <div class="wallet-pill"><span>🍀</span><div><div style="font-size:0.7rem; opacity:0.8;">Dulucks</div><div class="val" id="cnt-dulucks" style="font-size:1.1rem; font-weight:800;">0</div></div></div>
               <div class="wallet-pill"><span>🎟️</span><div><div style="font-size:0.7rem; opacity:0.8;">Tickets</div><div class="val" id="cnt-tickets" style="font-size:1.1rem; font-weight:800;">0</div></div></div>
+            </div>
+          </div>
+
+          <div class="card-block" style="padding:18px; margin-bottom:20px;">
+            <h4 style="font-size:1.05rem; font-weight:800; margin-bottom:14px; display:flex; align-items:center; gap:6px;">
+              📊 Estadísticas de Combate y Partidas
+            </h4>
+            <div class="stat-grid-box">
+              <div class="stat-item-card">
+                <div class="stat-item-label">Partidas</div>
+                <div class="stat-item-value" id="st-partidas">0</div>
+              </div>
+              <div class="stat-item-card">
+                <div class="stat-item-label">Victorias</div>
+                <div class="stat-item-value" id="st-victorias" style="color:#10b981;">0</div>
+              </div>
+              <div class="stat-item-card">
+                <div class="stat-item-label">Derrotas</div>
+                <div class="stat-item-value" id="st-derrotas" style="color:#ef4444;">0</div>
+              </div>
+              <div class="stat-item-card">
+                <div class="stat-item-label">% Victoria</div>
+                <div class="stat-item-value" id="st-winrate" style="color:var(--primary);">0%</div>
+              </div>
+              <div class="stat-item-card">
+                <div class="stat-item-label">Derrotados</div>
+                <div class="stat-item-value" id="st-asesinatos">0</div>
+              </div>
+              <div class="stat-item-card">
+                <div class="stat-item-label">Modo Extremo</div>
+                <div class="stat-item-value" id="st-extremos" style="color:#8b5cf6;">0</div>
+              </div>
+              <div class="stat-item-card">
+                <div class="stat-item-label">Racha Máx</div>
+                <div class="stat-item-value" id="st-racha-max" style="color:#f59e0b;">0</div>
+              </div>
             </div>
           </div>
 
@@ -599,17 +655,20 @@
         <div style="display:flex; gap:8px; flex-wrap:wrap;" id="fp-admin-actions"></div>
       </div>
 
-      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:18px;">
-        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;"><div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">NIVEL</div><div id="fp-level" style="font-weight:800; font-size:1.1rem; color:var(--text-dark);">1</div></div>
-        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;"><div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">🔥 RACHA MÁX</div><div id="fp-racha" style="font-weight:800; font-size:1.1rem; color:#f59e0b;">0</div></div>
-        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:12px; text-align:center;"><div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">🏅 LOGROS</div><div id="fp-ach-count" style="font-weight:800; font-size:1.1rem; color:var(--primary);">0</div></div>
+      <div class="stat-grid-box" style="margin-bottom:16px;">
+        <div class="stat-item-card" style="padding:8px;"><div class="stat-item-label">NIVEL</div><div id="fp-level" class="stat-item-value">1</div></div>
+        <div class="stat-item-card" style="padding:8px;"><div class="stat-item-label">PARTIDAS</div><div id="fp-partidas" class="stat-item-value">0</div></div>
+        <div class="stat-item-card" style="padding:8px;"><div class="stat-item-label">VICTORIAS</div><div id="fp-victorias" class="stat-item-value" style="color:#10b981;">0</div></div>
+        <div class="stat-item-card" style="padding:8px;"><div class="stat-item-label">DERROTADOS</div><div id="fp-asesinatos" class="stat-item-value">0</div></div>
+        <div class="stat-item-card" style="padding:8px;"><div class="stat-item-label">RACHA MÁX</div><div id="fp-racha" class="stat-item-value" style="color:#f59e0b;">0</div></div>
+        <div class="stat-item-card" style="padding:8px;"><div class="stat-item-label">LOGROS</div><div id="fp-ach-count" class="stat-item-value" style="color:var(--primary);">0</div></div>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <h4 style="font-size:1rem; font-weight:800;">🏅 Logros Desbloqueados</h4>
       </div>
 
-      <div id="fp-achievements-container" style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:16px; padding-right:6px;"></div>
+      <div id="fp-achievements-container" style="max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:16px; padding-right:6px;"></div>
 
       <div style="display:flex; justify-content:flex-end; gap:10px;" id="fp-actions-container"></div>
     </div>
@@ -684,10 +743,9 @@
       { id: "banner_2", file: "assets/banner_2.png", tipo: "pts", ptsRequeridos: 2000 },
       { id: "banner_3", file: "assets/banner_3.png", tipo: "pts", ptsRequeridos: 3000 },
       { id: "banner_4", file: "assets/banner_4.png", tipo: "dulucks", costoDulucks: 10 },
-      { id: "banner_5", file: "assets/banner_5.png", tipo: "staff" } // Solo candado, sin texto de puntos
+      { id: "banner_5", file: "assets/banner_5.png", tipo: "staff" }
     ];
 
-    // Paleta de degradados pastel
     const PALETA_PASTEL = [
       { id: "pastel_aurora", gradient: "linear-gradient(135deg, #fbcfe8 0%, #ddd6fe 50%, #bae6fd 100%)" },
       { id: "pastel_lavanda", gradient: "linear-gradient(135deg, #e9d5ff 0%, #c4b5fd 100%)" },
@@ -821,7 +879,16 @@
           await db.ref('users/' + uid).set({ 
             info: { username: txt_user, email: txt_email, avatar: "", rol: user_clean === "catteru2" ? "admin" : "user", banner_equipado: "", pastel_equipado: "pastel_aurora" }, 
             inventario: { enjoirs: 0, dulucks: 0, tickets: 0 }, 
-            stats: { nivel: 1, racha_maxima: 0 } 
+            stats: { 
+              nivel: 1, 
+              racha_maxima: 0, 
+              racha_actual: 0,
+              total_partidas: 0,
+              total_victorias: 0,
+              total_derrotas: 0,
+              total_asesinatos: 0,
+              total_extremos: 0
+            } 
           });
           iniciarSesionExito(uid, txt_user);
         } catch(err) { msg.style.color = "#ef4444"; msg.textContent = "Error al registrar."; }
@@ -1006,6 +1073,24 @@
       document.getElementById("cnt-dulucks").textContent = (currentUserData.inventario?.dulucks ?? 0).toLocaleString();
       document.getElementById("cnt-tickets").textContent = (currentUserData.inventario?.tickets ?? 0).toLocaleString();
       
+      // Actualizar Estadísticas de Combate y Perfil
+      const st = currentUserData.stats || {};
+      const partidas = st.total_partidas || 0;
+      const victorias = st.total_victorias || 0;
+      const derrotas = st.total_derrotas || 0;
+      const asesinatos = st.total_asesinatos || 0;
+      const extremos = st.total_extremos || 0;
+      const rachaMax = st.racha_maxima || st.racha || 0;
+      const winrate = partidas > 0 ? Math.round((victorias / partidas) * 100) : 0;
+
+      document.getElementById("st-partidas").textContent = partidas.toLocaleString();
+      document.getElementById("st-victorias").textContent = victorias.toLocaleString();
+      document.getElementById("st-derrotas").textContent = derrotas.toLocaleString();
+      document.getElementById("st-winrate").textContent = `${winrate}%`;
+      document.getElementById("st-asesinatos").textContent = asesinatos.toLocaleString();
+      document.getElementById("st-extremos").textContent = extremos.toLocaleString();
+      document.getElementById("st-racha-max").textContent = rachaMax.toLocaleString();
+
       // Aplicar fondo del Hero
       aplicarFondoBanner(document.getElementById("disp-profile-hero"), currentUserData);
 
@@ -1108,7 +1193,6 @@
       const misDulucks = currentUserData?.inventario?.dulucks || 0;
       const misBannersComprados = currentUserData?.banners_comprados || {};
 
-      // 1. Renderizar paleta de colores pastel
       paletteContainer.innerHTML = "";
       PALETA_PASTEL.forEach(p => {
         const swatch = document.createElement("div");
@@ -1118,7 +1202,6 @@
         paletteContainer.appendChild(swatch);
       });
 
-      // 2. Renderizar catálogo de 5 banners
       catalogContainer.innerHTML = "";
       CATALOGO_BANNERS.forEach(b => {
         let desbloqueado = false;
@@ -1132,7 +1215,7 @@
           lockText = `🔒 Requiere ${b.costoDulucks} Dulucks`;
         } else if (b.tipo === "staff") {
           desbloqueado = !!misBannersComprados[b.id];
-          lockText = `🔒`; // Solo candado, sin texto de puntos
+          lockText = `🔒`;
         }
 
         const equipado = (bannerEquipado === b.id);
@@ -1210,7 +1293,7 @@
         let cantLogros = 0;
         if (u.logros) Object.values(u.logros).forEach(logro => { if ((typeof logro === "object" && (logro.unlocked || logro.desbloqueado)) || (typeof logro === "boolean" && logro)) cantLogros++; });
         
-        const racha = u.stats?.racha_maxima || 0;
+        const racha = u.stats?.racha_maxima || u.stats?.racha || 0;
         const prestigio = (racha * 100) + (cantLogros * 250);
 
         lista.push({ 
@@ -1334,7 +1417,8 @@
         let cantLogros = 0;
         if (data.logros) Object.values(data.logros).forEach(l => { if ((typeof l === "object" && (l.unlocked||l.desbloqueado)) || (typeof l === "boolean" && l)) cantLogros++; });
 
-        const racha = data.stats?.racha_maxima || 0;
+        const st = data.stats || {};
+        const racha = st.racha_maxima || st.racha || 0;
         const prestigio = (racha * 100) + (cantLogros * 250);
         const uname = data.info?.username || "Jugador";
         const urol = data.info?.rol || "";
@@ -1343,15 +1427,17 @@
         document.getElementById("fp-role-badge").innerHTML = getRoleBadge(uname, urol);
         document.getElementById("fp-uid").textContent = `UID: ${targetUID}`;
         document.getElementById("fp-score").textContent = `Prestigio: ${prestigio.toLocaleString()} pts`;
-        document.getElementById("fp-level").textContent = data.stats?.nivel || 1;
+        document.getElementById("fp-level").textContent = st.nivel || 1;
         document.getElementById("fp-racha").textContent = racha;
         document.getElementById("fp-ach-count").textContent = cantLogros;
+        document.getElementById("fp-partidas").textContent = (st.total_partidas || 0).toLocaleString();
+        document.getElementById("fp-victorias").textContent = (st.total_victorias || 0).toLocaleString();
+        document.getElementById("fp-asesinatos").textContent = (st.total_asesinatos || 0).toLocaleString();
         
         const avatarEl = document.getElementById("fp-avatar");
         if (data.info?.avatar) avatarEl.innerHTML = `<img src="${data.info.avatar}">`;
         else avatarEl.textContent = uname.charAt(0).toUpperCase();
 
-        // Aplicar banner al Hero del perfil del amigo
         aplicarFondoBanner(document.getElementById("fp-profile-hero"), data);
 
         // HERRAMIENTAS DE MODERACIÓN
@@ -1373,7 +1459,6 @@
             adminActions.innerHTML += `<button class="btn-sm btn-sm-danger" onclick="toggleBanUsuario('${targetUID}', true)">⛔ Banear Jugador</button>`;
           }
 
-          // Otorgar / Quitar Banner 5
           const tieneBanner5 = data.banners_comprados && data.banners_comprados["banner_5"];
           if (tieneBanner5) {
             adminActions.innerHTML += `<button class="btn-sm btn-sm-secondary" onclick="toggleBanner5Usuario('${targetUID}', false)">Quitar Banner 5</button>`;
