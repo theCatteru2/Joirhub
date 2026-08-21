@@ -438,10 +438,6 @@
                 <div class="stat-item-value" id="st-asesinatos">0</div>
               </div>
               <div class="stat-item-card">
-                <div class="stat-item-label">Modo Extremo</div>
-                <div class="stat-item-value" id="st-extremos" style="color:#8b5cf6;">0</div>
-              </div>
-              <div class="stat-item-card">
                 <div class="stat-item-label">Racha Máx</div>
                 <div class="stat-item-value" id="st-racha-max" style="color:#f59e0b;">0</div>
               </div>
@@ -704,18 +700,18 @@
       { id: "suerte_de_joir", titulo: "Suerte de Joir", desc: "Recolectar un Duluck durante una partida", rareza: "muy_raro", meta: 1 },
       { id: "cazador_joirs_1", titulo: "Cazador de Joirs I", desc: "Derrotar 10 enemigos en una sola partida", rareza: "comun", meta: 10 },
       { id: "cazador_joirs_2", titulo: "Cazador de Joirs II", desc: "Derrotar 15 enemigos en una sola partida", rareza: "raro", meta: 15 },
-      { id: "cazador_joirs_3", titulo: "Cazador de Joirs III", desc: "Derrotar 25 enemigos en una sola partida", rareza: "muy_raro", meta: 25 },
-      { id: "cazador_joirs_4", titulo: "Cazador de Joirs IV", desc: "Derrotar 30 enemigos en una sola partida", rareza: "inaudito", meta: 30 },
-      { id: "joirinvicto_1", titulo: "Campeón Joirinvicto I", desc: "Tener una racha de 5 partidas", rareza: "comun", meta: 5 },
-      { id: "joirinvicto_2", titulo: "Campeón Joirinvicto II", desc: "Tener una racha de 10 partidas", rareza: "raro", meta: 10 },
-      { id: "joirinvicto_3", titulo: "Campeón Joirinvicto III", desc: "Tener una racha de 15 partidas", rareza: "muy_raro", meta: 15 },
-      { id: "joirinvicto_4", titulo: "Campeón Joirinvicto IV", desc: "Tener una racha de 20 partidas", rareza: "muy_raro", meta: 20 },
-      { id: "joirinvicto_5", titulo: "Campeón Joirinvicto V", desc: "Tener una racha de 50 partidas", rareza: "inaudito", meta: 50 },
+      { id: "cazador_joirs_3", titulo: "Cazador de Joirs III", desc: "Derrotar 20 enemigos en una sola partida", rareza: "muy_raro", meta: 20 },
+      { id: "cazador_joirs_4", titulo: "Cazador de Joirs IV", desc: "Derrotar 25 enemigos en una sola partida", rareza: "inaudito", meta: 25 },
+      { id: "joirinvicto_1", titulo: "Campeón Joirinvicto I", desc: "Tener una racha de 3 partidas", rareza: "raro", meta: 3 },
+      { id: "joirinvicto_2", titulo: "Campeón Joirinvicto II", desc: "Tener una racha de 6 partidas", rareza: "muy_raro", meta: 6 },
+      { id: "joirinvicto_3", titulo: "Campeón Joirinvicto III", desc: "Tener una racha de 9 partidas", rareza: "muy_raro", meta: 9 },
+      { id: "joirinvicto_4", titulo: "Campeón Joirinvicto IV", desc: "Tener una racha de 12 partidas", rareza: "muy_raro", meta: 12 },
+      { id: "joirinvicto_5", titulo: "Campeón Joirinvicto V", desc: "Tener una racha de 15 partidas", rareza: "inaudito", meta: 15 },
       { id: "joir_extremo_1", titulo: "Joir al extremo I", desc: "Ganar 10 partidas de Extremo", rareza: "comun", meta: 10 },
       { id: "joir_extremo_2", titulo: "Joir al extremo II", desc: "Ganar 20 partidas de Extremo", rareza: "comun", meta: 20 },
       { id: "joir_extremo_3", titulo: "Joir al extremo III", desc: "Ganar 50 partidas de Extremo", rareza: "raro", meta: 50 },
       { id: "joir_extremo_4", titulo: "Joir al extremo IV", desc: "Ganar 100 partidas de Extremo", rareza: "muy_raro", meta: 100 },
-      { id: "joir_extremo_5", titulo: "Joir al extremo V", desc: "Ganar 500 partidas de Extremo", rareza: "inaudito", meta: 500 },
+      { id: "joir_extremo_5", titulo: "Joir al extremo V", desc: "Ganar 200 partidas de Extremo", rareza: "inaudito", meta: 200 },
       { id: "alcanzia_1", titulo: "Alcancía I", desc: "Ahorrar 500 Enjoirs", rareza: "comun", meta: 500 },
       { id: "alcanzia_2", titulo: "Alcancía II", desc: "Ahorrar 1000 Enjoirs", rareza: "comun", meta: 1000 },
       { id: "alcanzia_3", titulo: "Alcancía III", desc: "Ahorrar 2500 Enjoirs", rareza: "raro", meta: 2500 },
@@ -1079,7 +1075,6 @@
       const victorias = st.total_victorias || 0;
       const derrotas = st.total_derrotas || 0;
       const asesinatos = st.total_asesinatos || 0;
-      const extremos = st.total_extremos || 0;
       const rachaMax = st.racha_maxima || st.racha || 0;
       const winrate = partidas > 0 ? Math.round((victorias / partidas) * 100) : 0;
 
@@ -1088,7 +1083,6 @@
       document.getElementById("st-derrotas").textContent = derrotas.toLocaleString();
       document.getElementById("st-winrate").textContent = `${winrate}%`;
       document.getElementById("st-asesinatos").textContent = asesinatos.toLocaleString();
-      document.getElementById("st-extremos").textContent = extremos.toLocaleString();
       document.getElementById("st-racha-max").textContent = rachaMax.toLocaleString();
 
       // Aplicar fondo del Hero
